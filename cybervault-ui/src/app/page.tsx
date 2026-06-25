@@ -36,6 +36,36 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* NEW ITEMS ALERT */}
+      <div className="mb-8 p-6 rounded-2xl border border-green-500/20 bg-green-500/5 relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-4">
+          <span className="flex h-3 w-3 relative">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+          </span>
+        </div>
+        <h2 className="text-xl font-bold text-white flex items-center gap-2 mb-4">
+          🎉 Welcome back! 1 new machine detected.
+        </h2>
+        <div className="flex items-center justify-between bg-[#050507] rounded-xl p-4 border border-[#1a1a20]">
+          <div>
+            <p className="text-sm font-bold text-gray-400 mb-1">Machine</p>
+            <p className="font-bold text-white text-lg">Crocodile</p>
+          </div>
+          <div>
+            <p className="text-sm font-bold text-gray-400 mb-1">Difficulty</p>
+            <p className="text-white">Easy</p>
+          </div>
+          <div>
+            <p className="text-sm font-bold text-gray-400 mb-1">Completed</p>
+            <p className="text-white">Today</p>
+          </div>
+          <a href="/journal/crocodile" className="stakent-btn-primary !py-2.5">
+            Generate Journal →
+          </a>
+        </div>
+      </div>
+
       {/* TOP: Continue Working & Today's Progress */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         
@@ -68,7 +98,7 @@ export default function DashboardPage() {
             </div>
 
             <button className="bg-white text-black font-bold py-3 px-6 rounded-xl hover:bg-gray-200 transition flex items-center gap-2">
-              Resume Machine <ArrowRight className="w-4 h-4" />
+              Continue <ArrowRight className="w-4 h-4" />
             </button>
           </div>
 

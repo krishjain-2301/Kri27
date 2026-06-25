@@ -50,13 +50,7 @@ export default function LearningPage() {
                   <span className="text-gray-300">Diff: {m.difficulty}</span>
                 </div>
               </div>
-              <button className="stakent-btn-primary !py-2 !px-4 text-sm">View Journal →</button>
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              {m.skills.map(s => (
-                <span key={s} className="text-xs bg-[#1a1a20] border border-[#222] px-3 py-1 rounded-full text-gray-400">{s}</span>
-              ))}
+              <a href={`/journal/${m.title.toLowerCase().replace(/\s+/g, '-')}`} className="stakent-btn-primary !py-2 !px-4 text-sm">View Journal →</a>
             </div>
           </div>
         ))}

@@ -55,7 +55,7 @@ export default function ChallengesPage() {
               <div className={`text-xs font-bold ${t.status.includes('Owned') || t.status === 'Completed' ? 'text-green-500' : 'text-purple-400'}`}>
                 {t.status}
               </div>
-              <button className="text-xs font-bold text-white hover:text-purple-400 transition">View Journal →</button>
+              <a href={`/journal/${t.name.toLowerCase().replace(/\s+/g, '-')}`} className="text-xs font-bold text-white hover:text-purple-400 transition">View Journal →</a>
             </div>
 
             {(t.status.includes('Owned') || t.status === 'Completed') && (

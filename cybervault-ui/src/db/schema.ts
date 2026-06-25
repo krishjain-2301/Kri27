@@ -30,20 +30,29 @@ export const journal = sqliteTable('journal', {
   itemId: text('item_id').notNull().references(() => htbItems.id, { onDelete: 'cascade' }),
   journalType: text('journal_type').notNull(), // 'Learning', 'Challenge'
   
-  summary: text('summary'),
-  notes: text('notes'),
+  title: text('title').notNull(),
+  content: text('content'), // The Notion-style BlockNote JSON or Markdown content
   
-  // Specific to Challenges/Machines
-  enumeration: text('enumeration'),
-  exploitation: text('exploitation'),
-  privesc: text('privesc'),
+  wordCount: integer('word_count').default(0),
+  lastOpenedAt: integer('last_opened_at', { mode: 'timestamp' }),
   
-  // Universal
-  lessons: text('lessons'),
-  mistakes: text('mistakes'),
-  commands: text('commands'),
-  markdown: text('markdown'), // Full raw markdown if they prefer one big document
-  
+  ...timestamps
+});
+
+export const settings = sqliteTable('settings', {
+  id: text('id').primaryKey(),
+  htbAppToken: text('htb_app_token'),
+  autoSync: integer('auto_sync', { mode: 'boolean' }).default(false),
+  syncInterval: text('sync_interval').default('Manual'), // 'Manual', '15 min', '30 min'
+  ...timestamps
+});
+
+export const syncHistory = sqliteTable('sync_history', {
+  id: text('id').primaryKey(),
+  durationMs: integer('duration_ms').notNull(),
+  itemsUpdated: integer('items_updated').notNull().default(0),
+  newEntries: integer('new_entries').notNull().default(0),
+  errors: integer('errors').notNull().default(0),
   ...timestamps
 });
 
