@@ -32,12 +32,27 @@ export const journal = sqliteTable('journal', {
   journalStatus: text('journal_status').default('Not Started'), // 'Not Started', 'In Progress', 'Completed'
   
   title: text('title').notNull(),
-  content: text('content'), // The Notion-style BlockNote JSON or Markdown content
+  content: text('content'), // Legacy
+  contentJson: text('content_json'),
+  contentMarkdown: text('content_markdown'),
+  perceivedDifficulty: integer('perceived_difficulty'),
+  personalConfidence: integer('personal_confidence'),
+  needsReview: integer('needs_review').default(0),
+  isFavorite: integer('is_favorite').default(0),
+  mood: text('mood'),
   
   wordCount: integer('word_count').default(0),
   lastOpenedAt: integer('last_opened_at', { mode: 'timestamp' }),
   
   ...timestamps
+});
+
+export const journalHistory = sqliteTable('journal_history', {
+  id: text('id').primaryKey(),
+  journalId: text('journal_id').notNull().references(() => journal.id, { onDelete: 'cascade' }),
+  contentJson: text('content_json'),
+  contentMarkdown: text('content_markdown'),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`(strftime('%s', 'now'))`),
 });
 
 export const settings = sqliteTable('settings', {

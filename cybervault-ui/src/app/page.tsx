@@ -14,6 +14,8 @@ export default async function DashboardPage() {
   const userSettings = await db.select().from(settings).limit(1);
   const isConnected = userSettings.length > 0 && userSettings[0].htbAppToken;
 
+  console.log("Dashboard Page Data:", { stats, recommendation, recentActivityLength: recentActivity.length, isConnected });
+
   return (
     <DashboardClient 
       stats={stats} 

@@ -2,8 +2,9 @@
 
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
-import { ShieldCheck, Target, Clock, Calendar, Hash, Image as ImageIcon, Terminal, BookOpen, Save } from 'lucide-react';
-import { autoSaveJournal } from '@/actions/journal';
+import { ShieldCheck, Target, Clock, Calendar, Hash, Image as ImageIcon, Terminal, BookOpen, Save, Star, AlertTriangle, Heart, History, Download, Copy, RefreshCcw } from 'lucide-react';
+import { autoSaveJournal, updatePersonalMetadata, fetchJournalHistory } from '@/actions/journal';
+import { formatDistanceToNow } from 'date-fns';
 
 // Dynamically import the editor since it relies on browser APIs and can't be SSR'd
 const CyberEditor = dynamic(() => import('@/components/CyberEditor'), { ssr: false });
@@ -17,11 +18,36 @@ export default function JournalClient({ initialData, machineTemplate }: any) {
     commands: 0
   });
 
-  const [saveStatus, setSaveStatus] = useState<string>('');
+  const [metadata, setMetadata] = useState({
+    perceivedDifficulty: initialData.journal.perceivedDifficulty || 0,
+    personalConfidence: initialData.journal.personalConfidence || 0,
+    needsReview: initialData.journal.needsReview === 1,
+    isFavorite: initialData.journal.isFavorite === 1,
+    mood: initialData.journal.mood || ''
+  });
 
-  const handleAutoSave = async (content: string) => {
+  const handleMetadataChange = async (key: string, value: any) => {
+    const newMetadata = { ...metadata, [key]: value };
+    setMetadata(newMetadata);
     try {
-      const res = await autoSaveJournal(initialData.journal.id, content);
+      await updatePersonalMetadata(initialData.journal.id, newMetadata);
+    } catch (e) {
+      console.error("Failed to save metadata", e);
+    }
+  };
+
+  const [saveStatus, setSaveStatus] = useState<string>('');
+  const [historyItems, setHistoryItems] = useState<any[]>([]);
+  const [snapshotToRestoreJson, setSnapshotToRestoreJson] = useState<string>();
+  const [showHistory, setShowHistory] = useState(false);
+
+  React.useEffect(() => {
+    fetchJournalHistory(initialData.journal.id).then(setHistoryItems);
+  }, [initialData.journal.id]);
+
+  const handleAutoSave = async (contentJson: string, contentMarkdown: string) => {
+    try {
+      const res = await autoSaveJournal(initialData.journal.id, contentJson, contentMarkdown);
       if (res.success) {
         setSaveStatus(`Saved just now`);
         setTimeout(() => setSaveStatus(''), 3000);
@@ -38,8 +64,23 @@ export default function JournalClient({ initialData, machineTemplate }: any) {
       
       {/* Auto-Save Indicator */}
       {saveStatus && (
-        <div className="absolute top-0 right-0 mt-4 mr-4 flex items-center gap-2 text-xs font-bold text-gray-500 bg-[#0c0c0e] px-3 py-1.5 rounded-full border border-[#1a1a20]">
-          <Save className="w-3 h-3" /> {saveStatus}
+        <div className="absolute top-0 right-0 mt-4 mr-4 flex items-center gap-3">
+          {saveStatus && (
+            <div className="flex items-center gap-2 text-xs font-bold text-gray-500 bg-[#0c0c0e] px-3 py-1.5 rounded-full border border-[#1a1a20]">
+              <Save className="w-3 h-3" /> {saveStatus}
+            </div>
+          )}
+          <button onClick={() => setShowHistory(!showHistory)} className="flex items-center gap-2 text-xs font-bold text-gray-400 bg-[#0c0c0e] hover:bg-[#1a1a20] transition px-3 py-1.5 rounded-full border border-[#1a1a20]">
+            <History className="w-3 h-3" /> History
+          </button>
+          <button onClick={() => {
+              navigator.clipboard.writeText(initialData.journal.contentMarkdown || '');
+              setSaveStatus('Copied MD');
+              setTimeout(() => setSaveStatus(''), 3000);
+            }} 
+            className="flex items-center gap-2 text-xs font-bold text-gray-400 bg-[#0c0c0e] hover:bg-[#1a1a20] transition px-3 py-1.5 rounded-full border border-[#1a1a20]">
+            <Copy className="w-3 h-3" /> Copy Markdown
+          </button>
         </div>
       )}
 
@@ -67,22 +108,99 @@ export default function JournalClient({ initialData, machineTemplate }: any) {
           </div>
         </div>
 
-        <div className="flex gap-12 text-sm">
+        <div className="flex gap-12 text-sm mt-8 border-t border-[#1a1a20] pt-6">
           <div>
             <span className="text-gray-500 uppercase tracking-wider text-xs font-bold block mb-1">Status</span>
             <span className="font-semibold flex items-center gap-2 text-white">{initialData.journal.journalStatus}</span>
+          </div>
+
+          <div>
+            <span className="text-gray-500 uppercase tracking-wider text-xs font-bold block mb-2">Mood</span>
+            <div className="flex gap-2">
+              {['🤩', '😊', '😐', '😫', '🤬'].map(m => (
+                <button key={m} onClick={() => handleMetadataChange('mood', m)} className={`text-xl hover:scale-110 transition ${metadata.mood === m ? 'scale-125 drop-shadow-lg opacity-100' : 'opacity-40 grayscale'}`}>
+                  {m}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <span className="text-gray-500 uppercase tracking-wider text-xs font-bold block mb-2">Perceived Difficulty</span>
+            <div className="flex gap-1">
+              {[1, 2, 3, 4, 5].map(star => (
+                <button key={star} onClick={() => handleMetadataChange('perceivedDifficulty', star)} className="hover:scale-110 transition">
+                  <Star className={`w-5 h-5 ${star <= metadata.perceivedDifficulty ? 'fill-orange-400 text-orange-400' : 'text-gray-600'}`} />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <span className="text-gray-500 uppercase tracking-wider text-xs font-bold block mb-2">Confidence</span>
+            <div className="flex gap-1">
+              {[1, 2, 3, 4, 5].map(star => (
+                <button key={star} onClick={() => handleMetadataChange('personalConfidence', star)} className="hover:scale-110 transition">
+                  <Star className={`w-5 h-5 ${star <= metadata.personalConfidence ? 'fill-blue-400 text-blue-400' : 'text-gray-600'}`} />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-6 ml-auto">
+            <button onClick={() => handleMetadataChange('needsReview', !metadata.needsReview)} className={`flex items-center gap-2 text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg border transition ${metadata.needsReview ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-transparent border-[#1a1a20] text-gray-500 hover:bg-white/5'}`}>
+              <AlertTriangle className="w-4 h-4" /> Need Review
+            </button>
+            <button onClick={() => handleMetadataChange('isFavorite', !metadata.isFavorite)} className={`flex items-center gap-2 text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg border transition ${metadata.isFavorite ? 'bg-pink-500/10 border-pink-500/30 text-pink-400' : 'bg-transparent border-[#1a1a20] text-gray-500 hover:bg-white/5'}`}>
+              <Heart className={`w-4 h-4 ${metadata.isFavorite ? 'fill-pink-400' : ''}`} /> Favorite
+            </button>
           </div>
         </div>
       </div>
 
       {/* THE EDITOR */}
-      <div className="mb-8">
-        <CyberEditor 
-          initialContent={initialData.journal.content || undefined}
-          markdownTemplate={machineTemplate}
-          onStatsChange={setStats} 
-          onAutoSave={handleAutoSave} 
-        />
+      <div className="mb-8 flex gap-8">
+        <div className="flex-1">
+          <CyberEditor 
+            journalId={initialData.journal.id}
+            initialContentJson={initialData.journal.contentJson || undefined}
+            snapshotToRestoreJson={snapshotToRestoreJson}
+            markdownTemplate={machineTemplate}
+            onStatsChange={setStats} 
+            onAutoSave={handleAutoSave} 
+          />
+        </div>
+
+        {/* VERSION HISTORY SIDEBAR */}
+        {showHistory && (
+          <div className="w-64 bg-[#0c0c0e] border border-[#1a1a20] rounded-xl p-4 self-start sticky top-4 max-h-[80vh] overflow-y-auto custom-scrollbar animate-in slide-in-from-right-4">
+            <h3 className="text-xs uppercase tracking-wider font-bold text-gray-500 mb-4 flex items-center gap-2">
+              <History className="w-4 h-4" /> Version History
+            </h3>
+            <div className="space-y-3">
+              {historyItems.map((snap) => (
+                <div key={snap.id} className="p-3 bg-white/5 border border-white/5 rounded-lg hover:bg-white/10 transition group">
+                  <div className="text-xs text-gray-400 mb-2 font-mono">
+                    {formatDistanceToNow(new Date(snap.createdAt))} ago
+                  </div>
+                  <button 
+                    onClick={() => {
+                      setSnapshotToRestoreJson(snap.contentJson);
+                      setSaveStatus('Restored Snapshot');
+                      setTimeout(() => setSaveStatus(''), 3000);
+                    }}
+                    className="flex items-center gap-2 text-xs font-bold text-blue-400 opacity-0 group-hover:opacity-100 transition w-full"
+                  >
+                    <RefreshCcw className="w-3 h-3" /> Restore Version
+                  </button>
+                </div>
+              ))}
+              {historyItems.length === 0 && (
+                <p className="text-xs text-gray-500 italic">No snapshots saved yet.</p>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* WRITING STATS FOOTER (Fixed to bottom) */}

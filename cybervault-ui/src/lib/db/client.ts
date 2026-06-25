@@ -3,8 +3,9 @@ import Database from 'better-sqlite3';
 import * as schema from './schema';
 import path from 'path';
 
-// Use a local file for the SQLite database
-const sqlite = new Database(path.join(process.cwd(), 'cybervault.db'));
+// Use a local file for the SQLite database, isolating it inside CyberVault_Data
+const dbPath = path.resolve(process.cwd(), 'CyberVault_Data', 'vault.db');
+const sqlite = new Database(dbPath);
 
 // Setup FTS5 Virtual Table for the journal search
 sqlite.exec(`

@@ -1,6 +1,7 @@
 import { db } from '@/lib/db/client';
-import { htbItems, journal } from '@/lib/db/schema';
+import { htbItems, journal, journalHistory } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { randomUUID } from 'crypto';
 
 export async function getJournalEntry(id: string) {
   const result = await db.select({
@@ -17,19 +18,52 @@ export async function getJournalEntry(id: string) {
   return result[0];
 }
 
-export async function saveJournalEntry(id: string, content: string) {
+export async function saveJournalEntry(id: string, contentJson: string, contentMarkdown: string) {
   // Calculate status based on content length
   let status = 'Not Started';
-  if (content.length > 3000) status = 'Completed';
-  else if (content.length > 300) status = 'In Progress';
+  if (contentMarkdown.length > 3000) status = 'Completed';
+  else if (contentMarkdown.length > 300) status = 'In Progress';
 
   await db.update(journal)
     .set({ 
-      content, 
+      contentJson,
+      contentMarkdown,
       journalStatus: status,
       updatedAt: new Date()
     })
     .where(eq(journal.id, id));
     
+  // Save a snapshot to history every time
+  await db.insert(journalHistory).values({
+    id: randomUUID(),
+    journalId: id,
+    contentJson,
+    contentMarkdown
+  });
+    
+  // Update FTS5 index via triggers or raw sql if needed, but since we are just doing simple text search later, 
+  // we'll eventually write an FTS5 sync routine.
+    
   return { success: true, savedAt: new Date() };
+}
+
+export async function updatePersonalMetadata(id: string, data: any) {
+  await db.update(journal).set({
+    perceivedDifficulty: data.perceivedDifficulty,
+    personalConfidence: data.personalConfidence,
+    needsReview: data.needsReview ? 1 : 0,
+    isFavorite: data.isFavorite ? 1 : 0,
+    mood: data.mood,
+    updatedAt: new Date()
+  }).where(eq(journal.id, id));
+  return { success: true };
+}
+
+export async function getJournalHistory(journalId: string) {
+  const { desc } = await import('drizzle-orm');
+  return await db.select()
+    .from(journalHistory)
+    .where(eq(journalHistory.journalId, journalId))
+    .orderBy(desc(journalHistory.createdAt))
+    .limit(20);
 }

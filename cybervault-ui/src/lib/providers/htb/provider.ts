@@ -18,7 +18,7 @@ export class HackTheBoxProvider implements LearningProvider {
       await this.client.getUserInfo();
       return true;
     } catch (e) {
-      console.error('Provider Validation Failed:', e);
+      console.warn('Provider Validation Failed:', e);
       return false;
     }
   }

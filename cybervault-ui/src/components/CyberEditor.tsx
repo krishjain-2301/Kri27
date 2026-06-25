@@ -6,30 +6,51 @@ import { BlockNoteView } from '@blocknote/mantine';
 import '@blocknote/mantine/style.css';
 
 interface CyberEditorProps {
-  initialContent?: string;
+  journalId: string;
+  initialContentJson?: string;
+  snapshotToRestoreJson?: string;
   markdownTemplate?: string;
   onStatsChange?: (stats: { words: number; readTime: number; codeBlocks: number; images: number; commands: number }) => void;
-  onAutoSave?: (content: string) => void;
+  onAutoSave?: (contentJson: string, contentMarkdown: string) => void;
 }
 
-export default function CyberEditor({ initialContent, markdownTemplate, onStatsChange, onAutoSave }: CyberEditorProps) {
-  const [content, setContent] = useState<string>(initialContent || '');
-  
+export default function CyberEditor({ journalId, initialContentJson, markdownTemplate, onStatsChange, onAutoSave }: CyberEditorProps) {
+  const [content, setContent] = useState<string>(initialContentJson || '');
   // Initialize BlockNote
   const editor = useCreateBlockNote({
-    initialContent: initialContent ? JSON.parse(initialContent) : undefined,
+    initialContent: initialContentJson ? JSON.parse(initialContentJson) : undefined,
+    uploadFile: async (file: File) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('journalId', journalId);
+      
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+      return data.url;
+    }
   });
 
   // Load markdown template if empty
   useEffect(() => {
-    if (editor && !initialContent && markdownTemplate) {
+    if (editor && !initialContentJson && markdownTemplate) {
       async function loadMarkdown() {
         const blocks = await editor.tryParseMarkdownToBlocks(markdownTemplate!);
         editor.replaceBlocks(editor.document, blocks);
       }
       loadMarkdown();
     }
-  }, [editor, initialContent, markdownTemplate]);
+  }, [editor, initialContentJson, markdownTemplate]);
+
+  // Restore from snapshot
+  useEffect(() => {
+    if (editor && snapshotToRestoreJson) {
+      const blocks = JSON.parse(snapshotToRestoreJson);
+      editor.replaceBlocks(editor.document, blocks);
+    }
+  }, [editor, snapshotToRestoreJson]);
 
   // Calculate stats and trigger autosave
   useEffect(() => {
@@ -68,9 +89,11 @@ export default function CyberEditor({ initialContent, markdownTemplate, onStatsC
         onStatsChange({ words: wordCount, readTime, codeBlocks, images, commands });
       }
 
-      // Auto-save stringified blocks
+      // Auto-save stringified blocks AND markdown
       if (onAutoSave) {
-        onAutoSave(JSON.stringify(blocks));
+        editor.blocksToMarkdownLossy(blocks).then((markdown) => {
+          onAutoSave(JSON.stringify(blocks), markdown);
+        });
       }
 
     }, 2000); // 2-second autosave

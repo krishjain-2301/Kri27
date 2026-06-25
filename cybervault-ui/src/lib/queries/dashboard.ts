@@ -32,7 +32,7 @@ export async function getTodaysRecommendation() {
 
   if (recommendation.length === 0) return null;
 
-  const charCount = recommendation[0].journal?.content?.length || 0;
+  const charCount = recommendation[0].journal?.contentMarkdown?.length || 0;
   let status = 'Not Started';
   if (charCount > 3000) status = 'Complete';
   else if (charCount > 1200) status = 'Detailed';
