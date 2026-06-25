@@ -13,6 +13,7 @@
     "@blocknote/mantine": "^0.51.4",
     "@blocknote/react": "^0.51.4",
     "better-sqlite3": "^12.11.1",
+    "date-fns": "^4.4.0",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "es-toolkit": "^1.48.1",

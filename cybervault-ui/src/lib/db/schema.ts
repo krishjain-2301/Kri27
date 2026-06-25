@@ -27,8 +27,9 @@ export const htbItems = sqliteTable('htb_items', {
 
 export const journal = sqliteTable('journal', {
   id: text('id').primaryKey(),
-  itemId: text('item_id').notNull().references(() => htbItems.id, { onDelete: 'cascade' }),
-  journalType: text('journal_type').notNull(), // 'Learning', 'Challenge'
+  itemId: text('item_id').references(() => htbItems.id, { onDelete: 'cascade' }), // Nullable for Daily Journals
+  journalType: text('journal_type'), // 'Academy', 'Machine', or 'Daily'
+  journalStatus: text('journal_status').default('Not Started'), // 'Not Started', 'In Progress', 'Completed'
   
   title: text('title').notNull(),
   content: text('content'), // The Notion-style BlockNote JSON or Markdown content
@@ -42,6 +43,7 @@ export const journal = sqliteTable('journal', {
 export const settings = sqliteTable('settings', {
   id: text('id').primaryKey(),
   htbAppToken: text('htb_app_token'),
+  htbUsername: text('htb_username'),
   autoSync: integer('auto_sync', { mode: 'boolean' }).default(false),
   syncInterval: text('sync_interval').default('Manual'), // 'Manual', '15 min', '30 min'
   ...timestamps
