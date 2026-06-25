@@ -50,10 +50,10 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="flex items-center gap-3 px-5 py-5 border-b border-[var(--color-border)]">
         <div className="relative flex-shrink-0">
-          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-            <Shield className="w-5 h-5 text-white" />
+          <div className="w-8 h-8 rounded-lg bg-purple-600 flex items-center justify-center">
+            <Shield className="w-4 h-4 text-white" />
           </div>
-          <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-indigo-400 rounded-full border-2 border-[var(--color-bg-primary)]" />
+          <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-purple-400 rounded-full border-2 border-[var(--color-bg-primary)]" />
         </div>
         {!sidebarCollapsed && (
           <motion.div
@@ -63,7 +63,7 @@ export default function Sidebar() {
             transition={{ duration: 0.2 }}
           >
             <h1 className="text-lg font-bold text-[var(--color-text-primary)]">
-              CenWo
+              CyberVault
             </h1>
             <p className="text-[10px] text-[var(--color-text-muted)] -mt-0.5 tracking-wider uppercase">
               Cyber Learning
@@ -97,11 +97,11 @@ export default function Sidebar() {
                 {isActive && (
                   <motion.div
                     layoutId="sidebar-indicator"
-                    className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 bg-indigo-500 rounded-r-full"
+                    className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 bg-purple-500 rounded-r-full"
                     transition={{ type: 'spring', stiffness: 350, damping: 30 }}
                   />
                 )}
-                <Icon className={`w-[18px] h-[18px] flex-shrink-0 ${isActive ? 'text-indigo-400' : 'text-[var(--color-text-tertiary)] group-hover:text-[var(--color-text-secondary)]'}`} />
+                <Icon className={`w-[18px] h-[18px] flex-shrink-0 ${isActive ? 'text-purple-400' : 'text-[var(--color-text-tertiary)] group-hover:text-[var(--color-text-secondary)]'}`} />
                 {!sidebarCollapsed && (
                   <motion.span
                     initial={{ opacity: 0 }}

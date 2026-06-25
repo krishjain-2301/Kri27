@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Sidebar from '@/components/layout/Sidebar';
-import Topbar from '@/components/layout/Topbar';
 import { useAppStore } from '@/stores/app-store';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -16,8 +15,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           sidebarCollapsed ? 'lg:ml-[72px]' : 'lg:ml-[260px]'
         }`}
       >
-        <Topbar />
-        <main className="p-6 lg:p-8 max-w-[1600px]">
+        <main className="p-6 lg:p-8 max-w-[1600px] min-h-screen">
           {children}
         </main>
       </div>
