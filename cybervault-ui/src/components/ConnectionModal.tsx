@@ -2,13 +2,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Target, CheckCircle, Shield, Key, User, Play } from 'lucide-react';
-import { saveConnectionSettings, runFullSync } from '@/actions/onboarding';
+import { Target, CheckCircle, Shield, Key, User, Play, AlertCircle, RefreshCw } from 'lucide-react';
+import { saveConnectionSettings } from '@/actions/onboarding';
+import { runSyncPreview, runSyncCommit } from '@/actions/sync';
 
 export default function ConnectionModal({ isOpen, onClose, onComplete }: { isOpen: boolean, onClose: () => void, onComplete: () => void }) {
   const [username, setUsername] = useState('');
   const [token, setToken] = useState('');
-  const [step, setStep] = useState<'form' | 'syncing' | 'success'>('form');
+  const [step, setStep] = useState<'form' | 'syncing' | 'preview' | 'success' | 'error'>('form');
+  const [errorMsg, setErrorMsg] = useState('');
+  const [previewData, setPreviewData] = useState<any>(null);
   
   // Sync state
   const [syncSteps, setSyncSteps] = useState([
@@ -26,36 +29,47 @@ export default function ConnectionModal({ isOpen, onClose, onComplete }: { isOpe
   const handleConnect = async () => {
     if (!username || !token) return;
     setStep('syncing');
+    setErrorMsg('');
 
-    // Simulate the granular fetching process for UI UX
-    const updateStep = (index: number) => {
-      setSyncSteps(prev => prev.map((s, i) => i <= index ? { ...s, done: true } : s));
-    };
+    try {
+      // 1. Save settings
+      await saveConnectionSettings(username, token);
+      
+      // 2. Fetch Preview
+      const updateStep = (index: number) => {
+        setSyncSteps(prev => prev.map((s, i) => i <= index ? { ...s, done: true } : s));
+      };
+      updateStep(0);
+      
+      const preview = await runSyncPreview();
+      updateStep(4);
+      setPreviewData(preview);
+      
+      setTimeout(() => {
+        setStep('preview');
+      }, 500);
 
-    updateStep(0); // Connected
-    await new Promise(r => setTimeout(r, 600));
-    updateStep(1); // Profile
-    await new Promise(r => setTimeout(r, 500));
-    updateStep(2); // Machines
-    
-    // In background, actually save and sync
-    await saveConnectionSettings(username, token);
-    const result = await runFullSync();
-    
-    updateStep(3); // Challenges
-    await new Promise(r => setTimeout(r, 500));
-    updateStep(4); // Academy
-    await new Promise(r => setTimeout(r, 600));
-    updateStep(5); // Comparing
-    await new Promise(r => setTimeout(r, 700));
-    updateStep(6); // Journals
-    await new Promise(r => setTimeout(r, 400));
-    updateStep(7); // Done!
-    
-    setSyncResults(result);
-    setTimeout(() => {
+    } catch (err: any) {
+      console.error(err);
+      setErrorMsg(err.message || 'Failed to connect.');
+      setStep('error');
+    }
+  };
+
+  const handleCommit = async () => {
+    setStep('syncing');
+    setSyncSteps(prev => prev.map(s => ({ ...s, done: true }))); // fast forward visual loading
+
+    try {
+      const result = await runSyncCommit(previewData);
+      if (!result.success) throw new Error(result.error);
+      
+      setSyncResults(result);
       setStep('success');
-    }, 800);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Failed to commit sync.');
+      setStep('error');
+    }
   };
 
   if (!isOpen) return null;
@@ -141,21 +155,81 @@ export default function ConnectionModal({ isOpen, onClose, onComplete }: { isOpe
             </div>
           )}
 
+          {step === 'error' && (
+            <div className="py-6 text-center animate-in zoom-in duration-300">
+              <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+              <h2 className="text-xl font-bold mb-2">Connection Failed</h2>
+              <p className="text-sm text-red-400 mb-6 bg-red-500/10 p-3 rounded-lg border border-red-500/20">{errorMsg}</p>
+              <button onClick={() => setStep('form')} className="stakent-btn-primary w-full py-3 justify-center">Try Again</button>
+            </div>
+          )}
+
+          {step === 'preview' && previewData && (
+            <div className="py-2 animate-in zoom-in duration-300">
+              <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
+                <RefreshCw className="w-5 h-5 text-blue-400" /> Sync Preview
+              </h2>
+              <p className="text-sm text-gray-400 mb-6">Review the changes before importing to your local vault.</p>
+
+              <div className="space-y-3 mb-6 bg-[#0c0c0e] border border-[#1a1a20] rounded-xl p-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-300">New Items Detected</span>
+                  <span className="text-green-400 font-bold">{previewData.newItems.length}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-300">Updates to Existing Items</span>
+                  <span className="text-purple-400 font-bold">{previewData.updatedItems.length}</span>
+                </div>
+                <div className="flex justify-between items-center pt-3 mt-3 border-t border-[#1a1a20]">
+                  <span className="text-sm text-gray-500">Journal Overwrites</span>
+                  <span className="text-gray-500 font-bold">0 (Protected)</span>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <button onClick={() => setStep('form')} className="stakent-pill flex-1 py-3 justify-center border border-[#1a1a20] hover:bg-[#1a1a20]">Cancel</button>
+                <button onClick={handleCommit} className="stakent-btn-primary flex-1 py-3 justify-center !bg-white !text-black">
+                  Proceed & Import
+                </button>
+              </div>
+            </div>
+          )}
+
           {step === 'success' && (
-            <div className="text-center py-6 animate-in zoom-in duration-500">
-              <div className="w-20 h-20 bg-green-500/10 border border-green-500/30 rounded-full flex items-center justify-center mx-auto mb-6 relative">
-                <div className="absolute inset-0 bg-green-500/20 blur-xl rounded-full"></div>
-                <CheckCircle className="w-10 h-10 text-green-400 relative z-10" />
+            <div className="py-2 animate-in zoom-in duration-500">
+              <div className="flex items-center gap-4 mb-6 pb-6 border-b border-[#1a1a20]">
+                <div className="w-16 h-16 bg-green-500/10 border border-green-500/30 rounded-full flex items-center justify-center relative">
+                  <div className="absolute inset-0 bg-green-500/20 blur-xl rounded-full"></div>
+                  <CheckCircle className="w-8 h-8 text-green-400 relative z-10" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold">Sync Complete</h2>
+                  <p className="text-gray-400 text-sm">Successfully merged with local vault in {(syncResults?.durationMs/1000).toFixed(2)}s.</p>
+                </div>
               </div>
               
-              <h2 className="text-2xl font-bold mb-2">🎉 Welcome to CyberVault</h2>
-              <p className="text-gray-400 mb-8">Ready to document your journey.</p>
-              
-              <div className="flex justify-center gap-4 text-sm font-semibold mb-8">
-                <div className="bg-[#0c0c0e] border border-[#1a1a20] px-4 py-2 rounded-xl">
-                  <span className="text-green-400 block text-lg">{syncResults?.newEntries || 5}</span>
-                  <span className="text-gray-500 text-xs uppercase tracking-wider">Imported</span>
-                </div>
+              <div className="mb-8 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+                <h3 className="text-xs uppercase tracking-wider font-bold text-gray-500 mb-3">What's New</h3>
+                {previewData?.newItems.length === 0 && previewData?.updatedItems.length === 0 ? (
+                  <p className="text-sm text-gray-400 italic">Already up to date.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {previewData?.newItems.map((item: any, i: number) => (
+                      <div key={`new-${i}`} className="flex items-center gap-3 text-sm p-2 rounded-lg hover:bg-white/5">
+                        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                        <span className="text-gray-300 font-medium truncate">{item.name}</span>
+                        <span className="text-xs text-green-500/70 ml-auto flex-shrink-0">New {item.type}</span>
+                      </div>
+                    ))}
+                    {previewData?.updatedItems.map((item: any, i: number) => (
+                      <div key={`upd-${i}`} className="flex items-center gap-3 text-sm p-2 rounded-lg hover:bg-white/5">
+                        <RefreshCw className="w-4 h-4 text-purple-500 flex-shrink-0" />
+                        <span className="text-gray-300 font-medium truncate">{item.name}</span>
+                        <span className="text-xs text-purple-500/70 ml-auto flex-shrink-0">Updated Status</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <button 
