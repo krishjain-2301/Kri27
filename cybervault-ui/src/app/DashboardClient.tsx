@@ -66,7 +66,6 @@ export default function DashboardClient({ stats, recommendation, recentActivity,
             <ul className="grid grid-cols-2 gap-4 mb-6 text-gray-300 font-medium">
               <li className="flex items-center gap-2"><CheckCircle className="w-5 h-5 text-green-500" /> Machines</li>
               <li className="flex items-center gap-2"><CheckCircle className="w-5 h-5 text-green-500" /> Challenges</li>
-              <li className="flex items-center gap-2"><CheckCircle className="w-5 h-5 text-green-500" /> Academy Modules</li>
               <li className="flex items-center gap-2"><CheckCircle className="w-5 h-5 text-green-500" /> Progress</li>
             </ul>
             <p className="text-sm text-gray-500 max-w-xl">
@@ -92,7 +91,7 @@ export default function DashboardClient({ stats, recommendation, recentActivity,
           <div className="flex-1">
             <p className="text-xs font-bold text-purple-400 uppercase tracking-widest mb-1">Today's Recommendation</p>
             <h2 className="text-2xl font-bold text-white flex items-center gap-2 mb-2">
-              Continue writing: {recommendation.name}
+              Continue writing: {recommendation.title}
             </h2>
             <p className="text-gray-400 text-sm mb-4">
               You completed this {recommendation.difficulty} {recommendation.type}. Capture your learning while it's fresh.
@@ -140,7 +139,7 @@ export default function DashboardClient({ stats, recommendation, recentActivity,
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-xs text-purple-200/60 uppercase tracking-wider font-bold mb-1">Machine</p>
-                <h3 className="text-4xl font-bold mb-4">{recentActivity[0]?.name || 'Nothing yet'}</h3>
+                <h3 className="text-4xl font-bold mb-4">{recentActivity[0]?.title || 'Nothing yet'}</h3>
                 
                 {recentActivity[0] && (
                   <div className="flex gap-6 text-sm text-purple-100/80 mb-6 font-medium">
@@ -190,7 +189,7 @@ export default function DashboardClient({ stats, recommendation, recentActivity,
                     {activity.type === 'Machine' ? <Target className="w-5 h-5 text-purple-400" /> : <BookOpen className="w-5 h-5 text-green-400" />}
                   </div>
                   <div>
-                    <p className="font-semibold text-sm">{activity.name}</p>
+                    <p className="font-semibold text-sm">{activity.title}</p>
                     <p className="text-xs text-gray-500">{activity.type} • {activity.status}</p>
                   </div>
                 </div>
@@ -202,14 +201,10 @@ export default function DashboardClient({ stats, recommendation, recentActivity,
       </div>
 
       {/* STATS ROW */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-8">
         <div className="stakent-glass p-6 text-center group hover:border-green-500/30 transition">
           <p className="text-4xl font-bold mb-2">{stats.machines}</p>
           <p className="text-xs text-gray-500 uppercase tracking-wider font-bold">Machines</p>
-        </div>
-        <div className="stakent-glass p-6 text-center group hover:border-blue-500/30 transition">
-          <p className="text-4xl font-bold mb-2">{stats.academyModules}</p>
-          <p className="text-xs text-gray-500 uppercase tracking-wider font-bold">Academy Modules</p>
         </div>
         <div className="stakent-glass p-6 text-center group hover:border-red-500/30 transition">
           <p className="text-4xl font-bold mb-2">{stats.challenges}</p>

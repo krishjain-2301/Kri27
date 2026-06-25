@@ -18,13 +18,6 @@ export default function SidebarNav() {
         <span>Dashboard</span>
       </Link>
       <Link 
-        href="/learning" 
-        className={`sidebar-link w-full ${pathname === '/learning' ? 'active' : ''}`}
-      >
-        <BookOpen className="w-5 h-5" />
-        <span>Learning</span>
-      </Link>
-      <Link 
         href="/challenges" 
         className={`sidebar-link w-full ${pathname === '/challenges' ? 'active' : ''}`}
       >

@@ -12,7 +12,7 @@ export async function generateSyncPreview(provider: LearningProvider): Promise<S
   const preview: SyncPreview = { newItems: [], updatedItems: [] };
 
   for (const remote of remoteItems) {
-    const local = localItems.find(l => l.name === remote.name && l.type === remote.type);
+    const local = localItems.find(l => l.htbId === remote.providerId);
     
     if (!local) {
       preview.newItems.push(remote);
@@ -35,11 +35,11 @@ export async function commitSync(provider: LearningProvider, preview: SyncPrevie
       const itemId = randomUUID();
       await db.insert(htbItems).values({
         id: itemId,
-        name: item.name,
+        htbId: item.providerId,
+        title: item.name,
         type: item.type,
         difficulty: item.difficulty,
         status: item.status,
-        os: item.os,
       });
 
       // Never overwrite existing journals, but since this is a new item, we create a fresh one
@@ -59,7 +59,7 @@ export async function commitSync(provider: LearningProvider, preview: SyncPrevie
     for (const item of preview.updatedItems) {
       await db.update(htbItems)
         .set({ status: item.status, difficulty: item.difficulty })
-        .where(eq(htbItems.name, item.name));
+        .where(eq(htbItems.htbId, item.providerId));
       itemsUpdated++;
     }
 
@@ -68,11 +68,10 @@ export async function commitSync(provider: LearningProvider, preview: SyncPrevie
     // Log to Sync History
     await db.insert(syncHistory).values({
       id: randomUUID(),
-      status: 'Success',
       newEntries: itemsImported,
-      updatedEntries: itemsUpdated,
-      // Store duration as note for now
-      notes: `Provider: ${provider.name} ${provider.version} | Duration: ${(durationMs/1000).toFixed(2)}s`
+      itemsUpdated: itemsUpdated,
+      errors: 0,
+      durationMs: durationMs,
     });
 
     return { success: true, newEntries: itemsImported, updatedEntries: itemsUpdated, durationMs };
@@ -82,10 +81,10 @@ export async function commitSync(provider: LearningProvider, preview: SyncPrevie
     
     await db.insert(syncHistory).values({
       id: randomUUID(),
-      status: 'Failed',
       newEntries: itemsImported,
-      updatedEntries: itemsUpdated,
-      notes: error.message || 'Unknown error during sync commit'
+      itemsUpdated: itemsUpdated,
+      errors: 1,
+      durationMs: Date.now() - startTime,
     });
 
     return { success: false, error: error.message };

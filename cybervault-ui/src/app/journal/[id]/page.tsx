@@ -50,14 +50,15 @@ const ACADEMY_TEMPLATE = `# Summary
 # Revision Notes
 `;
 
-export default async function JournalPage({ params }: { params: { id: string } }) {
+export default async function JournalPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const data = await getJournalEntry(params.id);
 
   if (!data) {
     notFound();
   }
 
-  const template = data.machine.type === 'Academy' ? ACADEMY_TEMPLATE : MACHINE_TEMPLATE;
+  const template = data.machine?.type === 'Academy' ? ACADEMY_TEMPLATE : MACHINE_TEMPLATE;
 
   return (
     <JournalClient 

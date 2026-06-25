@@ -57,7 +57,12 @@ export default function JournalClient({ initialData, machineTemplate }: any) {
     }
   };
 
-  const htbItem = initialData.machine;
+  const htbItem = initialData.machine || {
+    type: 'Daily Note',
+    title: initialData.journal.title || 'Daily Note',
+    difficulty: 'N/A',
+    status: initialData.journal.journalStatus || 'Not Started'
+  };
 
   return (
     <div className="max-w-5xl mx-auto pb-32 animate-in fade-in slide-in-from-bottom-4 duration-500 relative">
@@ -93,7 +98,7 @@ export default function JournalClient({ initialData, machineTemplate }: any) {
             </div>
             <div>
               <h1 className="text-4xl font-bold mb-1 flex items-center gap-3">
-                {htbItem.type === 'Machine' ? '🐊' : ''} {htbItem.name}
+                {htbItem.type === 'Machine' ? '🐊' : ''} {htbItem.title}
               </h1>
               <p className="text-gray-500 font-mono text-sm">{htbItem.type} • {htbItem.difficulty}</p>
             </div>

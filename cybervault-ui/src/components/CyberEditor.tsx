@@ -14,7 +14,7 @@ interface CyberEditorProps {
   onAutoSave?: (contentJson: string, contentMarkdown: string) => void;
 }
 
-export default function CyberEditor({ journalId, initialContentJson, markdownTemplate, onStatsChange, onAutoSave }: CyberEditorProps) {
+export default function CyberEditor({ journalId, initialContentJson, snapshotToRestoreJson, markdownTemplate, onStatsChange, onAutoSave }: CyberEditorProps) {
   const [content, setContent] = useState<string>(initialContentJson || '');
   // Initialize BlockNote
   const editor = useCreateBlockNote({
@@ -91,7 +91,7 @@ export default function CyberEditor({ journalId, initialContentJson, markdownTem
 
       // Auto-save stringified blocks AND markdown
       if (onAutoSave) {
-        editor.blocksToMarkdownLossy(blocks).then((markdown) => {
+        Promise.resolve(editor.blocksToMarkdownLossy(blocks)).then((markdown) => {
           onAutoSave(JSON.stringify(blocks), markdown);
         });
       }

@@ -41,7 +41,7 @@ export default async function LearningPage() {
               </div>
               
               <div>
-                <h3 className="font-bold text-lg mb-1">{m.name}</h3>
+                <h3 className="font-bold text-lg mb-1">{m.title}</h3>
                 <div className="flex items-center gap-3 text-xs text-gray-500">
                   <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                     m.difficulty === 'Easy' ? 'bg-green-900/30 text-green-400' : 'bg-yellow-900/30 text-yellow-400'

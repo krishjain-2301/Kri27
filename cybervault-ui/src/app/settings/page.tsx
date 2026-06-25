@@ -14,13 +14,24 @@ export default async function SettingsPage() {
   const userSettings = await db.select().from(settings).limit(1);
   const isConnected = userSettings.length > 0 && !!userSettings[0].htbAppToken;
 
-  let isHealthy = false;
+  let connectionResult: { ok: boolean; message: string; username?: string } = { ok: false, message: 'Not configured' };
   if (isConnected) {
     try {
       const provider = new HackTheBoxProvider(userSettings[0].htbAppToken as string);
-      isHealthy = await provider.validateConnection();
+      const res = await provider.validateConnection();
+      if (res.ok) {
+        connectionResult = { ok: true, message: 'Healthy', username: res.username };
+      } else {
+        const errorMessages = {
+          Unauthorized: 'Invalid API token',
+          RateLimited: 'Rate limit exceeded',
+          ValidationError: 'Unexpected response from HTB',
+          NetworkError: 'Network unavailable',
+        };
+        connectionResult = { ok: false, message: errorMessages[res.reason] || 'Failing' };
+      }
     } catch (e) {
-      isHealthy = false;
+      connectionResult = { ok: false, message: 'Network unavailable' };
     }
   }
 
@@ -48,10 +59,10 @@ export default async function SettingsPage() {
             {isConnected && (
               <div className="flex items-center gap-2 bg-[#0c0c0e] border border-[#1a1a20] px-3 py-1.5 rounded-lg text-sm">
                 <span className="text-gray-500">API Status:</span>
-                {isHealthy ? (
-                  <span className="text-green-400 font-bold flex items-center gap-1"><CheckCircle className="w-4 h-4"/> Healthy</span>
+                {connectionResult.ok ? (
+                  <span className="text-green-400 font-bold flex items-center gap-1"><CheckCircle className="w-4 h-4"/> Connected as {connectionResult.username}</span>
                 ) : (
-                  <span className="text-red-400 font-bold flex items-center gap-1"><AlertCircle className="w-4 h-4"/> Failing</span>
+                  <span className="text-red-400 font-bold flex items-center gap-1"><AlertCircle className="w-4 h-4"/> {connectionResult.message}</span>
                 )}
               </div>
             )}

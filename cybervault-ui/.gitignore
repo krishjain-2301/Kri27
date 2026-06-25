@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+/tests/fixtures/
 
 # next.js
 /.next/
@@ -43,3 +44,4 @@ next-env.d.ts
 CyberVault_Data/
 *.db
 *.db-journal
+*.har

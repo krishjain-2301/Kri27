@@ -1,5 +1,5 @@
 import { CyberVaultItem, UserProfile } from '../base/models';
-import { HTBUserResponse, HTBMachineOwnsResponse, HTBChallengeOwnsResponse } from './types';
+import { HTBUserResponse, HTBItemsListResponse } from './types';
 
 export class HTBMapper {
   
@@ -7,37 +7,38 @@ export class HTBMapper {
     return {
       username: data.profile.name,
       avatarUrl: data.profile.avatar || null,
-      rank: data.profile.rankText || null,
+      rank: data.profile.rank || null,
       points: data.profile.points,
       respect: data.profile.respects,
     };
   }
 
-  static toMachineItems(data: HTBMachineOwnsResponse): CyberVaultItem[] {
+  static toMachineItems(data: HTBItemsListResponse): CyberVaultItem[] {
     if (!data.data) return [];
     
-    return data.data.map(m => ({
+    // Only return owned items
+    return data.data.filter(m => m.is_owned).map(m => ({
       providerId: `htb_m_${m.id}`,
       name: m.name,
       type: 'Machine',
-      difficulty: m.difficultyText || 'Unknown',
-      status: m.status?.toLowerCase().includes('root') ? 'Root Owned' : 'User Owned',
+      difficulty: m.difficulty || 'Unknown',
+      status: 'Root Owned', // Or whatever default is best since HTB list doesn't distinguish user vs root easily in basic list
       os: m.os || null,
-      points: m.points,
+      points: m.points || 0,
     }));
   }
 
-  static toChallengeItems(data: HTBChallengeOwnsResponse): CyberVaultItem[] {
+  static toChallengeItems(data: HTBItemsListResponse): CyberVaultItem[] {
     if (!data.data) return [];
 
-    return data.data.map(c => ({
+    return data.data.filter(c => c.is_owned).map(c => ({
       providerId: `htb_c_${c.id}`,
       name: c.name,
       type: 'Challenge',
       difficulty: c.difficulty || 'Unknown',
       status: 'Completed',
       os: null,
-      points: c.points,
+      points: c.points || 0,
     }));
   }
 }

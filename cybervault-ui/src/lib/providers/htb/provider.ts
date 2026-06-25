@@ -3,9 +3,18 @@ import { CyberVaultItem, UserProfile } from '../base/models';
 import { HTBClient } from './client';
 import { HTBMapper } from './mapper';
 
+export type ConnectionResult =
+  | { ok: true; username: string }
+  | { ok: false; reason: 'Unauthorized' }
+  | { ok: false; reason: 'RateLimited' }
+  | { ok: false; reason: 'ValidationError' }
+  | { ok: false; reason: 'NetworkError' };
+
+export const SUPPORTED_API_VERSION = '2026-06';
+
 export class HackTheBoxProvider implements LearningProvider {
   name = 'Hack The Box';
-  version = 'v4';
+  version = SUPPORTED_API_VERSION;
   
   private client: HTBClient;
 
@@ -13,13 +22,17 @@ export class HackTheBoxProvider implements LearningProvider {
     this.client = new HTBClient(token);
   }
 
-  async validateConnection(): Promise<boolean> {
+  async validateConnection(): Promise<ConnectionResult> {
     try {
-      await this.client.getUserInfo();
-      return true;
-    } catch (e) {
+      const data = await this.client.getUserInfo();
+      return { ok: true, username: data.profile.name };
+    } catch (e: any) {
       console.warn('Provider Validation Failed:', e);
-      return false;
+      const msg = e.message || '';
+      if (msg.includes('Unauthorized')) return { ok: false, reason: 'Unauthorized' };
+      if (msg.includes('429')) return { ok: false, reason: 'RateLimited' };
+      if (msg.includes('Schema Changed') || msg.includes('Validation')) return { ok: false, reason: 'ValidationError' };
+      return { ok: false, reason: 'NetworkError' };
     }
   }
 

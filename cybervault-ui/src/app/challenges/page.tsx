@@ -46,7 +46,7 @@ export default async function ChallengesPage() {
                   {t.status.includes('Owned') || t.status === 'Completed' ? <ShieldCheck className="w-6 h-6 text-green-400" /> : <Target className="w-6 h-6 text-purple-400" />}
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg">{t.name}</h3>
+                  <h3 className="font-bold text-lg">{t.title}</h3>
                   <p className="text-xs text-gray-500 font-mono">{t.type} • {t.os || 'Unknown'}</p>
                 </div>
               </div>
