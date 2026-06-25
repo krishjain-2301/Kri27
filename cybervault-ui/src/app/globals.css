@@ -1,0 +1,132 @@
+@import "tailwindcss";
+
+@theme {
+  --color-stakent-bg: #050507;
+  --color-stakent-card: #0c0c0e;
+  --color-stakent-card-border: #1a1a20;
+  --color-stakent-purple-primary: #8b5cf6;
+  --color-stakent-purple-dark: #4c1d95;
+  --color-stakent-text-muted: #737380;
+  --color-stakent-success: #10b981;
+  --color-stakent-danger: #ef4444;
+}
+
+/* CSS Variables for traditional tailwind values if needed */
+:root {
+  --background: #050507;
+  --foreground: #ffffff;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Base custom classes to match the image perfectly */
+
+.stakent-glass {
+  background-color: #0c0c0e;
+  border: 1px solid #1a1a20;
+  border-radius: 20px;
+}
+
+.stakent-pill {
+  background-color: #1a1a20;
+  color: #e5e7eb;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stakent-glow-purple {
+  box-shadow: 0 0 40px -10px rgba(139, 92, 246, 0.15);
+}
+
+.stakent-gradient-card {
+  background: linear-gradient(145deg, rgba(139,92,246,0.3) 0%, rgba(76,29,149,0.1) 50%, #0c0c0e 100%);
+  border: 1px solid rgba(139,92,246,0.2);
+  border-radius: 24px;
+}
+
+.stakent-btn-primary {
+  background: linear-gradient(90deg, #c4b5fd 0%, #a78bfa 100%);
+  color: #111;
+  font-weight: 700;
+  padding: 10px 24px;
+  border-radius: 14px;
+  transition: all 0.2s ease;
+}
+
+.stakent-btn-primary:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 0 20px rgba(139,92,246,0.4);
+}
+
+.stakent-btn-dark {
+  background: #151518;
+  border: 1px solid #22222a;
+  color: #fff;
+  font-weight: 600;
+  padding: 10px 24px;
+  border-radius: 14px;
+}
+
+/* Sidebar Specifics */
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  color: #737380;
+  border-radius: 16px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.sidebar-link:hover {
+  color: #fff;
+  background-color: rgba(255,255,255,0.03);
+}
+
+.sidebar-link.active {
+  color: #fff;
+  background: linear-gradient(90deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.sidebar-link.active::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  width: 4px;
+  height: 20px;
+  border-radius: 4px;
+  background-color: #e5e7eb;
+}
+
+/* Table overrides for Stakent Look */
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 16px;
+}
+td {
+  padding: 16px;
+  background-color: rgba(255,255,255,0.02);
+}
+td:first-child {
+  border-top-left-radius: 16px;
+  border-bottom-left-radius: 16px;
+}
+td:last-child {
+  border-top-right-radius: 16px;
+  border-bottom-right-radius: 16px;
+}
