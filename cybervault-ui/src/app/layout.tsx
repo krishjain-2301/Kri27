@@ -13,6 +13,7 @@ import {
   Settings,
   ChevronDown
 } from "lucide-react";
+import SidebarNav from "@/components/SidebarNav";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -45,50 +46,19 @@ export default function RootLayout({
 
             {/* Nav Links */}
             <div className="p-4 flex-1 overflow-y-auto">
-              <div className="mb-6 flex gap-2 p-1 bg-[#0c0c0e] rounded-2xl border border-[#1a1a20]">
-                <button className="flex-1 py-1.5 px-3 bg-[#1a1a20] rounded-xl text-sm font-semibold text-white">Vault</button>
-                <button className="flex-1 py-1.5 px-3 text-gray-400 rounded-xl text-sm font-semibold hover:text-white transition">Academy</button>
-              </div>
-
-              <div className="space-y-1 relative">
-                <a href="/" className="sidebar-link active w-full relative">
-                  <LayoutDashboard className="w-5 h-5" />
-                  <span>Dashboard</span>
-                </a>
-                <a href="/targets" className="sidebar-link w-full">
-                  <Swords className="w-5 h-5" />
-                  <span>Targets</span>
-                </a>
-                <a href="/knowledge" className="sidebar-link w-full">
-                  <BookOpen className="w-5 h-5" />
-                  <span>Knowledge Base</span>
-                </a>
-                <a href="/payloads" className="sidebar-link w-full">
-                  <Terminal className="w-5 h-5" />
-                  <span>Payloads</span>
-                </a>
-                
-                <div className="mt-8 mb-2 px-4 text-xs font-bold text-[#555] uppercase tracking-wider">Analytics</div>
-                <button className="sidebar-link w-full justify-between">
-                  <div className="flex items-center gap-3">
-                    <Activity className="w-5 h-5" />
-                    <span>Active Sessions</span>
-                  </div>
-                  <span className="bg-purple-500/20 text-purple-400 text-[10px] px-2 py-0.5 rounded-full font-bold">6</span>
-                </button>
-              </div>
+              <SidebarNav />
             </div>
 
             <div className="p-4 border-t border-[#1a1a20]">
-              <button className="w-full flex items-center gap-3 p-3 rounded-2xl border border-green-500/20 bg-green-500/5 hover:bg-green-500/10 transition">
+              <div className="w-full flex items-center gap-3 p-3 rounded-2xl border border-green-500/20 bg-green-500/5">
                 <div className="w-6 h-6 rounded bg-green-500/20 flex items-center justify-center">
                   <span className="text-green-400 text-xs font-bold">●</span>
                 </div>
                 <div className="text-left">
-                  <p className="text-sm font-bold text-white">HTB VPN</p>
-                  <p className="text-xs text-green-500/70">Connected (US-EAST)</p>
+                  <p className="text-sm font-bold text-white">Local Vault</p>
+                  <p className="text-xs text-green-500/70">Tracking Active</p>
                 </div>
-              </button>
+              </div>
             </div>
           </aside>
 
@@ -108,7 +78,7 @@ export default function RootLayout({
                 </div>
                 
                 <button className="stakent-btn-primary flex items-center gap-2 py-2 px-4 rounded-full">
-                  Spawn Machine <span className="text-xs opacity-60">☁️</span>
+                  <span className="text-xs font-bold text-black text-lg">+</span> Log New Machine
                 </button>
               </div>
 

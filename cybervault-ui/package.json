@@ -9,6 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "better-sqlite3": "^12.11.1",
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "^0.45.2",
     "es-toolkit": "^1.48.1",
     "framer-motion": "^12.42.0",
     "lucide-react": "^1.21.0",
@@ -19,9 +22,11 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
     "tailwindcss": "^4",
