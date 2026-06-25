@@ -3,7 +3,6 @@
 import { db } from '@/lib/db/client';
 import { settings } from '@/lib/db/schema';
 import { randomUUID } from 'crypto';
-import { executeSync } from '@/lib/services/sync';
 import { eq } from 'drizzle-orm';
 
 export async function saveConnectionSettings(username: string, token: string) {
@@ -25,6 +24,3 @@ export async function saveConnectionSettings(username: string, token: string) {
   }
 }
 
-export async function runFullSync() {
-  return await executeSync();
-}
