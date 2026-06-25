@@ -130,13 +130,15 @@ export default async function SettingsPage() {
                     <tr key={log.id} className="border-b border-[#1a1a20] hover:bg-white/5 transition">
                       <td className="px-4 py-3 font-mono">{format(new Date(log.createdAt), 'dd MMM yyyy, HH:mm')}</td>
                       <td className="px-4 py-3">
-                        <span className={`px-2 py-1 rounded text-xs font-bold ${log.status === 'Success' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
-                          {log.status}
+                        <span className={`px-2 py-1 rounded text-xs font-bold ${log.errors === 0 ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
+                          {log.errors === 0 ? 'Success' : 'Failed'}
                         </span>
                       </td>
                       <td className="px-4 py-3 font-bold text-green-400">+{log.newEntries}</td>
-                      <td className="px-4 py-3 font-bold text-purple-400">^{log.updatedEntries}</td>
-                      <td className="px-4 py-3 text-xs text-gray-500 truncate max-w-[200px]">{log.notes}</td>
+                      <td className="px-4 py-3 font-bold text-purple-400">^{log.itemsUpdated}</td>
+                      <td className="px-4 py-3 text-xs text-gray-500 truncate max-w-[200px]">
+                        {log.errors > 0 ? `${log.errors} errors` : `Took ${log.durationMs}ms`}
+                      </td>
                     </tr>
                   ))
                 )}
