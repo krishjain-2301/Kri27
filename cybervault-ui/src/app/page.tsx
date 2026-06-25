@@ -27,18 +27,18 @@ export default function DashboardPage() {
       {/* HEADER ROW */}
       <div className="flex items-center gap-4 mb-6">
         <span className="text-sm font-semibold text-gray-400 flex items-center gap-2">
-          Recommended targets for 24 hours 
+          Recommended targets for you 
           <span className="w-4 h-4 rounded-full border border-gray-600 flex items-center justify-center text-[10px]">ℹ</span>
         </span>
-        <span className="stakent-pill bg-[#1a1a20] border border-[#2a2a30]">3 Assets</span>
+        <span className="stakent-pill bg-[#1a1a20] border border-[#2a2a30]">3 Active</span>
       </div>
 
       <div className="flex items-end justify-between mb-8">
         <h1 className="text-3xl font-bold">Top Active Targets</h1>
         <div className="flex gap-2">
-          <button className="stakent-pill px-4 py-2 border border-[#1a1a20] hover:bg-[#2a2a30]">24H ▾</button>
+          <button className="stakent-pill px-4 py-2 border border-[#1a1a20] hover:bg-[#2a2a30]">Recent ▾</button>
           <button className="stakent-pill px-4 py-2 border border-[#1a1a20] hover:bg-[#2a2a30]">Difficulty ▾</button>
-          <button className="stakent-pill px-4 py-2 border border-[#1a1a20] hover:bg-[#2a2a30]">Desc ▾</button>
+          <button className="stakent-pill px-4 py-2 border border-[#1a1a20] hover:bg-[#2a2a30]">OS ▾</button>
         </div>
       </div>
 
@@ -219,9 +219,9 @@ export default function DashboardPage() {
               </button>
             </div>
             
-            <p className="text-xs text-gray-500 font-semibold mb-2">Current Exploit Progress, Points</p>
+            <p className="text-xs text-gray-500 font-semibold mb-2">Current Exploit Progress / Points</p>
             <div className="flex items-center gap-6 mb-12">
-              <span className="text-6xl font-light tracking-tight">31.39686</span>
+              <span className="text-6xl font-light tracking-tight">1,250 <span className="text-2xl text-purple-500 font-bold">PTS</span></span>
               <div className="flex gap-3">
                 <button className="stakent-btn-primary !py-2 !px-6 !text-sm">Submit Flag</button>
                 <button className="stakent-btn-dark !py-2 !px-6 !text-sm border-[#333]">Save Note</button>
@@ -230,45 +230,52 @@ export default function DashboardPage() {
 
             <div className="grid grid-cols-3 gap-8">
               <div>
-                <p className="text-sm font-semibold mb-1 flex justify-between">Momentum <ChevronDown className="w-4 h-4 text-gray-600" /></p>
-                <p className="text-xs text-gray-500">Growth dynamics</p>
+                <p className="text-sm font-semibold mb-1 flex justify-between">Footprint <ChevronDown className="w-4 h-4 text-gray-600" /></p>
+                <p className="text-xs text-gray-500">Nmap Scans</p>
               </div>
               <div>
-                <p className="text-sm font-semibold mb-1 flex justify-between">General <ChevronDown className="w-4 h-4 text-gray-600" /></p>
-                <p className="text-xs text-gray-500">Overview</p>
+                <p className="text-sm font-semibold mb-1 flex justify-between">PrivEsc <ChevronDown className="w-4 h-4 text-gray-600" /></p>
+                <p className="text-xs text-gray-500">Local Enumeration</p>
               </div>
               <div>
-                <p className="text-sm font-semibold mb-1 flex justify-between">Risk <ChevronDown className="w-4 h-4 text-gray-600" /></p>
-                <p className="text-xs text-gray-500">Risk assessment</p>
+                <p className="text-sm font-semibold mb-1 flex justify-between">Vulnerabilities <ChevronDown className="w-4 h-4 text-gray-600" /></p>
+                <p className="text-xs text-gray-500">CVEs found</p>
               </div>
             </div>
           </div>
 
           {/* Right Sub-Panel */}
-          <div className="flex-[0.8] border border-[#1a1a20] rounded-2xl p-6 bg-gradient-to-b from-[#0c0c0e] to-[#08080a] relative">
-            <div className="flex justify-between items-center mb-8">
-              <h3 className="text-lg font-bold">Operation Period</h3>
-              <span className="bg-[#1a1a20] text-gray-300 text-xs px-3 py-1 rounded-full font-semibold border border-[#2a2a30]">6 Hours</span>
+          <div className="flex-[0.8] border border-[#1a1a20] rounded-2xl p-6 bg-gradient-to-b from-[#0c0c0e] to-[#08080a] relative flex flex-col">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-lg font-bold">Recent Terminal Activity</h3>
+              <span className="bg-[#1a1a20] text-purple-400 text-xs px-3 py-1 rounded-full font-semibold border border-purple-500/20 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></span> Live Sync
+              </span>
             </div>
-            <p className="text-xs text-gray-500 font-semibold mb-8">Engagement Duration (Hours)</p>
             
-            <div className="relative h-12 flex items-center mb-12">
-              <div className="w-full h-1 bg-[#1a1a20] rounded-full relative">
-                <div className="absolute top-0 left-0 h-full bg-purple-500/30 w-[60%] rounded-full"></div>
-                {/* Timeline markers */}
-                <div className="absolute top-1/2 -translate-y-1/2 left-[10%] w-[1px] h-4 bg-[#333]"></div>
-                <div className="absolute top-1/2 -translate-y-1/2 left-[30%] w-[1px] h-4 bg-[#333]"></div>
-                <div className="absolute top-1/2 -translate-y-1/2 left-[50%] w-[1px] h-4 bg-[#333]"></div>
-                <div className="absolute top-1/2 -translate-y-1/2 left-[70%] w-[1px] h-4 bg-[#333]"></div>
-                <div className="absolute top-1/2 -translate-y-1/2 left-[90%] w-[1px] h-4 bg-[#333]"></div>
-                
-                {/* Active node */}
-                <div className="absolute top-1/2 left-[60%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
-                  <div className="bg-[#1a1a20] border border-[#333] text-xs font-bold px-3 py-1 rounded-full mb-3 absolute bottom-4 whitespace-nowrap">4 Hours</div>
-                  <div className="w-6 h-6 rounded-full bg-purple-500/20 border border-purple-500/50 flex items-center justify-center">
-                    <div className="w-2 h-2 rounded-full bg-purple-500"></div>
-                  </div>
+            <div className="flex-1 space-y-3 overflow-y-auto pr-2">
+              <div className="p-3 bg-[#111114] border border-[#222] rounded-xl">
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-gray-500 font-mono">10:45 AM</span>
+                  <span className="text-purple-400 font-semibold">Nmap</span>
                 </div>
+                <p className="font-mono text-sm text-green-400 truncate">nmap -sC -sV -p- 10.10.11.230</p>
+              </div>
+              
+              <div className="p-3 bg-[#111114] border border-[#222] rounded-xl">
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-gray-500 font-mono">11:02 AM</span>
+                  <span className="text-blue-400 font-semibold">Gobuster</span>
+                </div>
+                <p className="font-mono text-sm text-green-400 truncate">gobuster dir -u http://10.10.11.230 -w...</p>
+              </div>
+
+              <div className="p-3 bg-[#111114] border border-[#222] rounded-xl">
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-gray-500 font-mono">11:15 AM</span>
+                  <span className="text-red-400 font-semibold">Exploit</span>
+                </div>
+                <p className="font-mono text-sm text-green-400 truncate">python3 exploit.py -t 10.10.11.230 -p...</p>
               </div>
             </div>
           </div>
@@ -278,34 +285,34 @@ export default function DashboardPage() {
         <div className="grid grid-cols-4 gap-6 mt-12 pt-8 border-t border-[#1a1a20]">
           <div>
             <p className="text-[10px] text-gray-500 uppercase tracking-wider font-bold mb-2 flex justify-between">
-              Staked Tokens Trend <span className="stakent-pill !px-2 !py-0.5">24H</span>
+              Global Rank Trend <span className="stakent-pill !px-2 !py-0.5">30D</span>
             </p>
-            <p className="text-2xl font-semibold">-0.82%</p>
+            <p className="text-2xl font-semibold text-green-500">+12.4%</p>
           </div>
           <div>
             <p className="text-[10px] text-gray-500 uppercase tracking-wider font-bold mb-2 flex justify-between">
-              Price <span className="stakent-pill !px-2 !py-0.5">24H</span>
+              Total Points <span className="stakent-pill !px-2 !py-0.5">ALL</span>
             </p>
             <p className="text-2xl font-semibold flex items-center gap-2">
-              $41.99 <span className="text-[10px] text-red-500 bg-red-500/10 px-1 rounded">-1.09% ↘</span>
+              8,450 <span className="text-[10px] text-green-500 bg-green-500/10 px-1 rounded">+120 ↗</span>
             </p>
           </div>
           <div>
             <p className="text-[10px] text-gray-500 uppercase tracking-wider font-bold mb-2 flex justify-between">
-              Staking Ratio <span className="stakent-pill !px-2 !py-0.5">24H</span>
+              Payloads Saved <span className="stakent-pill !px-2 !py-0.5">7D</span>
             </p>
-            <p className="text-2xl font-semibold">60.6%</p>
+            <p className="text-2xl font-semibold">14</p>
           </div>
           <div>
-            <p className="text-[10px] text-gray-500 uppercase tracking-wider font-bold mb-2">Reward Rate</p>
+            <p className="text-[10px] text-gray-500 uppercase tracking-wider font-bold mb-2">Accuracy Rate</p>
             <div className="space-y-1">
               <div className="flex items-center justify-between text-xs font-semibold">
-                <div className="w-16 h-1 bg-[#1a1a20] rounded relative"><div className="absolute left-0 w-2/3 h-full bg-purple-500 rounded"></div></div>
-                <span className="text-gray-300">2.23% <span className="text-gray-600">24H Ago</span></span>
+                <div className="w-16 h-1 bg-[#1a1a20] rounded relative"><div className="absolute left-0 w-[92%] h-full bg-purple-500 rounded"></div></div>
+                <span className="text-gray-300">92.3% <span className="text-gray-600">Flags</span></span>
               </div>
               <div className="flex items-center justify-between text-xs font-semibold">
-                <div className="w-16 h-1 bg-[#1a1a20] rounded relative"><div className="absolute left-0 w-1/3 h-full bg-gray-500 rounded"></div></div>
-                <span className="text-gray-300">1.46% <span className="text-gray-600">48H Ago</span></span>
+                <div className="w-16 h-1 bg-[#1a1a20] rounded relative"><div className="absolute left-0 w-[84%] h-full bg-gray-500 rounded"></div></div>
+                <span className="text-gray-300">84.6% <span className="text-gray-600">Trivia</span></span>
               </div>
             </div>
           </div>

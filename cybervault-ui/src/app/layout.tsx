@@ -46,27 +46,27 @@ export default function RootLayout({
             {/* Nav Links */}
             <div className="p-4 flex-1 overflow-y-auto">
               <div className="mb-6 flex gap-2 p-1 bg-[#0c0c0e] rounded-2xl border border-[#1a1a20]">
-                <button className="flex-1 py-1.5 px-3 bg-[#1a1a20] rounded-xl text-sm font-semibold text-white">Main</button>
-                <button className="flex-1 py-1.5 px-3 text-gray-400 rounded-xl text-sm font-semibold hover:text-white transition">Network</button>
+                <button className="flex-1 py-1.5 px-3 bg-[#1a1a20] rounded-xl text-sm font-semibold text-white">Vault</button>
+                <button className="flex-1 py-1.5 px-3 text-gray-400 rounded-xl text-sm font-semibold hover:text-white transition">Academy</button>
               </div>
 
               <div className="space-y-1 relative">
-                <button className="sidebar-link active w-full relative">
+                <a href="/" className="sidebar-link active w-full relative">
                   <LayoutDashboard className="w-5 h-5" />
                   <span>Dashboard</span>
-                </button>
-                <button className="sidebar-link w-full">
+                </a>
+                <a href="/targets" className="sidebar-link w-full">
                   <Swords className="w-5 h-5" />
                   <span>Targets</span>
-                </button>
-                <button className="sidebar-link w-full">
+                </a>
+                <a href="/knowledge" className="sidebar-link w-full">
                   <BookOpen className="w-5 h-5" />
                   <span>Knowledge Base</span>
-                </button>
-                <button className="sidebar-link w-full">
+                </a>
+                <a href="/payloads" className="sidebar-link w-full">
                   <Terminal className="w-5 h-5" />
                   <span>Payloads</span>
-                </button>
+                </a>
                 
                 <div className="mt-8 mb-2 px-4 text-xs font-bold text-[#555] uppercase tracking-wider">Analytics</div>
                 <button className="sidebar-link w-full justify-between">
@@ -80,13 +80,13 @@ export default function RootLayout({
             </div>
 
             <div className="p-4 border-t border-[#1a1a20]">
-              <button className="w-full flex items-center gap-3 p-3 rounded-2xl border border-purple-500/20 bg-purple-500/5 hover:bg-purple-500/10 transition">
-                <div className="w-6 h-6 rounded bg-purple-500/20 flex items-center justify-center">
-                  <span className="text-purple-400 text-xs font-bold">⚡</span>
+              <button className="w-full flex items-center gap-3 p-3 rounded-2xl border border-green-500/20 bg-green-500/5 hover:bg-green-500/10 transition">
+                <div className="w-6 h-6 rounded bg-green-500/20 flex items-center justify-center">
+                  <span className="text-green-400 text-xs font-bold">●</span>
                 </div>
                 <div className="text-left">
-                  <p className="text-sm font-bold text-white">Activate Pro</p>
-                  <p className="text-xs text-gray-500">Unlock all instances</p>
+                  <p className="text-sm font-bold text-white">HTB VPN</p>
+                  <p className="text-xs text-green-500/70">Connected (US-EAST)</p>
                 </div>
               </button>
             </div>
