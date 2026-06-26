@@ -85,11 +85,14 @@ export function CommandPalette() {
         {!query && (
           <>
             <Command.Group heading={<div className="px-2 py-1 text-xs font-bold text-gray-500 uppercase tracking-widest">Navigation</div>}>
-              <Command.Item onSelect={() => { setOpen(false); router.push('/'); }} className="flex items-center px-3 py-3 rounded-lg cursor-pointer aria-selected:bg-white/5 aria-selected:text-white text-gray-400 group transition-colors">
-                <LayoutDashboard className="w-4 h-4 mr-3" /> Go to Dashboard
+              <Command.Item onSelect={() => runCommand(() => router.push('/'))} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 rounded-lg hover:bg-white/5 hover:text-white cursor-pointer data-[selected=true]:bg-white/5 data-[selected=true]:text-white transition">
+                <LayoutDashboard className="w-4 h-4" /> Dashboard
               </Command.Item>
-              <Command.Item onSelect={() => { setOpen(false); router.push('/journals'); }} className="flex items-center px-3 py-3 rounded-lg cursor-pointer aria-selected:bg-white/5 aria-selected:text-white text-gray-400 group transition-colors">
-                <BookOpen className="w-4 h-4 mr-3" /> Go to Journal Hub
+              <Command.Item onSelect={() => runCommand(() => router.push('/timeline'))} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 rounded-lg hover:bg-white/5 hover:text-white cursor-pointer data-[selected=true]:bg-white/5 data-[selected=true]:text-white transition">
+                <Activity className="w-4 h-4" /> Timeline
+              </Command.Item>
+              <Command.Item onSelect={() => runCommand(() => router.push('/challenges'))} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 rounded-lg hover:bg-white/5 hover:text-white cursor-pointer data-[selected=true]:bg-white/5 data-[selected=true]:text-white transition">
+                <Swords className="w-4 h-4" /> Challenges
               </Command.Item>
               <Command.Item onSelect={() => { setOpen(false); router.push('/journals?type=Daily'); }} className="flex items-center px-3 py-3 rounded-lg cursor-pointer aria-selected:bg-white/5 aria-selected:text-white text-gray-400 group transition-colors">
                 <FileText className="w-4 h-4 mr-3" /> Go to Daily Notes

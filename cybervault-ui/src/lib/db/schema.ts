@@ -103,3 +103,14 @@ export const itemTags = sqliteTable('item_tags', {
   itemId: text('item_id').notNull().references(() => htbItems.id, { onDelete: 'cascade' }),
   tagId: text('tag_id').notNull().references(() => tags.id, { onDelete: 'cascade' }),
 });
+
+export const activityEvents = sqliteTable('activity_events', {
+  id: text('id').primaryKey(),
+  eventType: text('event_type').notNull(), // 'machine_started', 'machine_rooted', 'journal_created', 'journal_updated', 'sync_completed', 'screenshot_added', 'daily_note_created'
+  entityType: text('entity_type').notNull(), // 'machine', 'challenge', 'journal', 'sync'
+  entityId: text('entity_id').notNull(),
+  title: text('title').notNull(),
+  description: text('description'),
+  metadata: text('metadata'), // JSON string
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`(strftime('%s', 'now'))`),
+});

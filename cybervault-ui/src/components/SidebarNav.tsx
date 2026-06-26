@@ -3,7 +3,7 @@
 import React, { Suspense } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { LayoutDashboard, BookOpen, Swords } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Swords, Activity } from 'lucide-react';
 
 function SidebarNavContent() {
   const pathname = usePathname();
@@ -18,6 +18,13 @@ function SidebarNavContent() {
       >
         <LayoutDashboard className="w-5 h-5" />
         <span>Dashboard</span>
+      </Link>
+      <Link 
+        href="/timeline" 
+        className={`sidebar-link w-full ${pathname === '/timeline' ? 'active' : ''}`}
+      >
+        <Activity className="w-5 h-5" />
+        <span>Timeline</span>
       </Link>
       <Link 
         href="/challenges" 

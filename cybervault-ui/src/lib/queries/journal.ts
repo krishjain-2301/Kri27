@@ -19,6 +19,12 @@ export async function getJournalEntry(id: string) {
 }
 
 export async function saveJournalEntry(id: string, contentJson: string, contentMarkdown: string) {
+  // Get old content for word count diff
+  const oldJournal = await db.select({ contentMarkdown: journal.contentMarkdown, title: journal.title }).from(journal).where(eq(journal.id, id)).limit(1);
+  const oldWords = oldJournal[0]?.contentMarkdown ? oldJournal[0].contentMarkdown.split(/\s+/).length : 0;
+  const newWords = contentMarkdown.split(/\s+/).length;
+  const wordsAdded = newWords - oldWords;
+
   // Calculate status based on content length
   let status = 'Not Started';
   if (contentMarkdown.length > 3000) status = 'Completed';
@@ -29,6 +35,7 @@ export async function saveJournalEntry(id: string, contentJson: string, contentM
       contentJson,
       contentMarkdown,
       journalStatus: status,
+      wordCount: newWords,
       updatedAt: new Date()
     })
     .where(eq(journal.id, id));
@@ -40,9 +47,15 @@ export async function saveJournalEntry(id: string, contentJson: string, contentM
     contentJson,
     contentMarkdown
   });
-    
-  // Update FTS5 index via triggers or raw sql if needed, but since we are just doing simple text search later, 
-  // we'll eventually write an FTS5 sync routine.
+
+  const { logActivityEvent } = await import('@/lib/services/events');
+  await logActivityEvent({
+    eventType: 'journal_updated',
+    entityType: 'journal',
+    entityId: id,
+    title: oldJournal[0]?.title || 'Journal',
+    metadata: { words_added: wordsAdded > 0 ? wordsAdded : 0, total_words: newWords }
+  });
     
   return { success: true, savedAt: new Date() };
 }

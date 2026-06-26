@@ -4,6 +4,7 @@ import { eq } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
 import { LearningProvider, SyncPreview } from '../providers/base/contract';
 import { CyberVaultItem } from '../providers/base/models';
+import { logActivityEvent } from './events';
 
 export async function generateSyncPreview(provider: LearningProvider): Promise<SyncPreview> {
   const remoteItems = await provider.fetchLearningState();
@@ -42,14 +43,30 @@ export async function commitSync(provider: LearningProvider, preview: SyncPrevie
         status: item.status,
       });
 
+      const journalId = randomUUID();
       // Never overwrite existing journals, but since this is a new item, we create a fresh one
       await db.insert(journal).values({
-        id: randomUUID(),
+        id: journalId,
         itemId: itemId,
         journalType: item.type,
         journalStatus: 'Not Started',
         title: item.name,
         content: '',
+      });
+
+      // Emit Event based on status
+      const entityType = item.type === 'Challenge' ? 'challenge' : 'machine';
+      let eventType: any = item.type === 'Challenge' ? 'machine_started' : 'machine_started'; // generic fallback
+      if (item.status === 'Root Owned' || item.status === 'Completed') {
+        eventType = item.type === 'Challenge' ? 'challenge_completed' : 'machine_rooted';
+      }
+      
+      await logActivityEvent({
+        eventType,
+        entityType,
+        entityId: itemId,
+        title: item.name,
+        metadata: { status: item.status, difficulty: item.difficulty }
       });
 
       itemsImported++;
@@ -60,6 +77,22 @@ export async function commitSync(provider: LearningProvider, preview: SyncPrevie
       await db.update(htbItems)
         .set({ status: item.status, difficulty: item.difficulty })
         .where(eq(htbItems.htbId, item.providerId));
+        
+      // Fetch local ID to log event
+      const localItem = await db.select().from(htbItems).where(eq(htbItems.htbId, item.providerId)).limit(1);
+      
+      if (localItem.length > 0 && (item.status === 'Root Owned' || item.status === 'Completed')) {
+        const entityType = item.type === 'Challenge' ? 'challenge' : 'machine';
+        const eventType = item.type === 'Challenge' ? 'challenge_completed' : 'machine_rooted';
+        await logActivityEvent({
+          eventType,
+          entityType,
+          entityId: localItem[0].id,
+          title: item.name,
+          metadata: { status: item.status, difficulty: item.difficulty }
+        });
+      }
+        
       itemsUpdated++;
     }
 
@@ -72,6 +105,15 @@ export async function commitSync(provider: LearningProvider, preview: SyncPrevie
       itemsUpdated: itemsUpdated,
       errors: 0,
       durationMs: durationMs,
+    });
+
+    await logActivityEvent({
+      eventType: 'sync_completed',
+      entityType: 'sync',
+      entityId: randomUUID(),
+      title: 'Sync Completed',
+      description: `Imported ${itemsImported} items, updated ${itemsUpdated} items in ${durationMs}ms`,
+      metadata: { itemsImported, itemsUpdated, durationMs }
     });
 
     return { success: true, newEntries: itemsImported, updatedEntries: itemsUpdated, durationMs };
