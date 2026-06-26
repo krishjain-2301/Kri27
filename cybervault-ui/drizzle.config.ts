@@ -5,6 +5,6 @@ export default {
   out: './drizzle',
   dialect: 'sqlite',
   dbCredentials: {
-    url: 'cybervault.db',
+    url: './CyberVault_Data/vault.db',
   }
 } satisfies Config;
