@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import ConnectionModal from '@/components/ConnectionModal';
 
-export default function DashboardClient({ stats, recommendation, recentActivity, isConnected }: any) {
+export default function DashboardClient({ stats, recommendation, recentActivity, activityStats, isConnected }: any) {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
 
   return (
@@ -42,12 +42,12 @@ export default function DashboardClient({ stats, recommendation, recentActivity,
           <div className="flex items-center gap-4 text-sm font-semibold">
             <div className="flex flex-col items-end">
               <span className="text-gray-500 text-xs uppercase tracking-wider">Current Streak</span>
-              <span className="text-xl text-purple-400">18 Days</span>
+              <span className="text-xl text-purple-400">{activityStats?.streak || 0} Days</span>
             </div>
             <div className="w-px h-8 bg-[#1a1a20]"></div>
             <div className="flex flex-col items-end">
-              <span className="text-gray-500 text-xs uppercase tracking-wider">Hours This Week</span>
-              <span className="text-xl text-green-400">21.4</span>
+              <span className="text-gray-500 text-xs uppercase tracking-wider">Actions This Week</span>
+              <span className="text-xl text-green-400">{activityStats?.actionsThisWeek || 0}</span>
             </div>
           </div>
         </div>

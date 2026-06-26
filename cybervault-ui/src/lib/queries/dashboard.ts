@@ -1,6 +1,37 @@
 import { db } from '@/lib/db/client';
-import { htbItems, journal } from '@/lib/db/schema';
+import { htbItems, journal, activityEvents } from '@/lib/db/schema';
 import { eq, desc, and, or, sql } from 'drizzle-orm';
+import { format, subDays } from 'date-fns';
+
+export async function getActivityStats() {
+  const events = await db.select({
+    createdAt: activityEvents.createdAt
+  }).from(activityEvents).where(
+    sql`${activityEvents.entityType} != 'sync'`
+  ).orderBy(desc(activityEvents.createdAt));
+
+  const oneWeekAgo = subDays(new Date(), 7);
+  const actionsThisWeek = events.filter(e => new Date(e.createdAt) >= oneWeekAgo).length;
+
+  const activeDays = new Set(events.map(e => format(new Date(e.createdAt), 'yyyy-MM-dd')));
+  let streak = 0;
+  let currentDate = new Date();
+  
+  if (!activeDays.has(format(currentDate, 'yyyy-MM-dd'))) {
+    const yesterday = format(subDays(currentDate, 1), 'yyyy-MM-dd');
+    if (!activeDays.has(yesterday)) {
+       return { streak: 0, actionsThisWeek };
+    }
+    currentDate = subDays(currentDate, 1);
+  }
+
+  while (activeDays.has(format(currentDate, 'yyyy-MM-dd'))) {
+    streak++;
+    currentDate = subDays(currentDate, 1);
+  }
+
+  return { streak, actionsThisWeek };
+}
 
 export async function getDashboardStats() {
   const allItems = await db.select().from(htbItems);
