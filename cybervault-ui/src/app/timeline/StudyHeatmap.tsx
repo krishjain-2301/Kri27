@@ -12,11 +12,21 @@ interface ActivityEvent {
 }
 
 export default function StudyHeatmap({ events }: { events: ActivityEvent[] }) {
-  // Generate last 90 days
-  const days = useMemo(() => {
+  // Generate last 90 days aligned to a 7-day grid (Sunday-Saturday)
+  const gridDays = useMemo(() => {
     const arr = [];
+    const today = new Date();
+    const startDate = subDays(today, 89);
+    const startDayOfWeek = startDate.getDay(); // 0 is Sunday
+    
+    // Pad the start so the first day aligns with its day of the week
+    for (let i = 0; i < startDayOfWeek; i++) {
+      arr.push(null);
+    }
+    
+    // Add the 90 days
     for (let i = 89; i >= 0; i--) {
-      arr.push(subDays(new Date(), i));
+      arr.push(subDays(today, i));
     }
     return arr;
   }, []);
@@ -43,7 +53,7 @@ export default function StudyHeatmap({ events }: { events: ActivityEvent[] }) {
   };
 
   return (
-    <div className="stakent-glass p-6 overflow-hidden">
+    <div className="stakent-glass p-6 overflow-hidden overflow-x-auto">
       <div className="flex justify-between items-end mb-4">
         <div>
           <h3 className="font-bold text-lg">Study Heatmap</h3>
@@ -54,14 +64,16 @@ export default function StudyHeatmap({ events }: { events: ActivityEvent[] }) {
         </div>
       </div>
       
-      <div className="flex flex-wrap gap-1 md:gap-[3px]">
-        {days.map((day, i) => {
+      <div className="grid grid-rows-7 grid-flow-col gap-[3px] w-max">
+        {gridDays.map((day, i) => {
+          if (!day) return <div key={i} className="w-[14px] h-[14px]" />; // Empty padding slot
+
           const count = activityMap.get(format(day, 'yyyy-MM-dd')) || 0;
           return (
             <div 
               key={i} 
               title={`${format(day, 'MMM d, yyyy')}: ${count} actions`}
-              className={`w-3 h-3 md:w-[14px] md:h-[14px] rounded-sm transition-all hover:scale-125 hover:z-10 cursor-help ${getColor(count)}`}
+              className={`w-[14px] h-[14px] rounded-sm transition-all hover:scale-125 hover:z-10 cursor-help ${getColor(count)}`}
             />
           );
         })}
