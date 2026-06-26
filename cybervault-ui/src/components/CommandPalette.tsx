@@ -62,6 +62,7 @@ export function CommandPalette() {
       onClick={() => setOpen(false)}
     >
       <Command 
+        shouldFilter={false}
         className="w-full max-w-2xl bg-[#0c0c0e] border border-[#1a1a20] rounded-2xl shadow-[0_0_100px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >

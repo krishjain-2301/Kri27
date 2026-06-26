@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Plethora
+
+Plethora is an advanced "Second Brain" and Cybersecurity OS, built specifically for hackers, bug bounty hunters, and security researchers. It natively syncs with Hack The Box to track your progress and provides a robust, local-first journaling system for your write-ups.
+
+## Features
+
+- 🔒 **Local-First & Private:** Everything is stored locally in an SQLite database. Your private write-ups never touch the cloud.
+- 🔄 **Hack The Box Auto-Sync:** Connect your HTB App Token to automatically pull in your active and completed Machines, Challenges, and Sherlocks.
+- 📓 **Rich Journaling Engine:** A powerful BlockNote-based editor with instant auto-save, markdown compilation, and inline screenshot pasting.
+- ⚡ **Command Palette (Ctrl+Q):** A fully keyboard-driven command center.
+  - **FTS5 Search:** Instantly search thousands of journals using an ultra-fast SQLite Full-Text Search engine.
+  - **Dynamic Command Extraction:** Type a command like `nmap` into the palette, and Plethora will automatically extract matching bash/powershell commands from your past write-ups and tell you exactly where you used them.
+  - **Quick Navigation:** Jump instantly to your Dashboard, Journal Hub, or Daily Notes.
+- 📝 **Daily Notes:** A dedicated space for general studying, scratchpads, and meeting notes, kept completely separate from your HTB write-ups.
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+- Node.js (v18 or higher)
+- npm or pnpm
+- Hack The Box App Token (for syncing)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Installation
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. **Clone the repository:**
+   \`\`\`bash
+   git clone https://github.com/krishjain-2301/Kri27.git
+   cd Kri27/cybervault-ui
+   \`\`\`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+2. **Install dependencies:**
+   \`\`\`bash
+   npm install
+   \`\`\`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. **Run the application:**
+   \`\`\`bash
+   npm run dev
+   \`\`\`
 
-## Learn More
+4. **Open Plethora:**
+   Navigate to `http://localhost:3001` in your browser.
 
-To learn more about Next.js, take a look at the following resources:
+## First Setup
+1. When you first open the Dashboard, click **"Connect Hack The Box"**.
+2. Enter your HTB App Token (You can generate this in your HTB Profile Settings).
+3. Plethora will securely save this token to your local database and immediately begin importing your Machines and Challenges.
+4. Go to the **Journal Hub** to start writing!
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Architecture & Security
+Plethora uses a local SQLite database (`vault.db`) stored inside the `CyberVault_Data/` directory. This directory is strictly `.gitignore`'d, ensuring your private notes, screenshots, and HTB App Tokens are never accidentally pushed to a remote repository.
