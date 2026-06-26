@@ -23,20 +23,21 @@ Plethora is an advanced "Second Brain" and Cybersecurity OS, built specifically 
 ### Installation
 
 1. **Clone the repository:**
-   \`\`\`bash
+   ```bash
    git clone https://github.com/krishjain-2301/Kri27.git
    cd Kri27/cybervault-ui
-   \`\`\`
+   ```
 
 2. **Install dependencies:**
-   \`\`\`bash
+   ```bash
    npm install
-   \`\`\`
+   ```
+   *(Note for Python users: Node.js uses `package.json` exactly like a `requirements.txt` file. Running the command above will automatically read the `package.json` file and install all required libraries into a local `node_modules` folder.)*
 
 3. **Run the application:**
-   \`\`\`bash
+   ```bash
    npm run dev
-   \`\`\`
+   ```
 
 4. **Open Plethora:**
    Navigate to `http://localhost:3001` in your browser.
