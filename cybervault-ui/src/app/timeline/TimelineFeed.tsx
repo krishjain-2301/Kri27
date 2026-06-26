@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { format, isToday, isYesterday, isThisWeek, subDays, startOfMonth, formatDistanceToNow } from 'date-fns';
-import { Activity, BookOpen, Monitor, TerminalSquare, ShieldCheck, RefreshCw, FileText } from 'lucide-react';
+import { Activity, BookOpen, Monitor, TerminalSquare, ShieldCheck, RefreshCw, FileText, Search } from 'lucide-react';
 import StudyHeatmap from './StudyHeatmap';
 import Link from 'next/link';
 
@@ -84,31 +84,18 @@ export default function TimelineFeed({ initialEvents }: { initialEvents: Activit
 
   return (
     <div className="space-y-8">
-      {/* Filters and Search */}
-      <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
-        <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 w-full no-scrollbar">
-          {['All', 'Machines', 'Challenges', 'Journals', 'Daily Notes', 'Sync'].map(f => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-4 py-1.5 rounded-full text-sm font-bold whitespace-nowrap transition-all ${
-                filter === f 
-                  ? 'bg-blue-500 text-white' 
-                  : 'bg-[#0c0c0e] text-gray-400 border border-[#1a1a20] hover:text-white hover:border-gray-600'
-              }`}
-            >
-              {f}
-            </button>
-          ))}
+      {/* Search */}
+      <div className="flex flex-col md:flex-row gap-4 mb-8 justify-end">
+        <div className="relative flex-1 md:max-w-xs">
+          <Search className="w-4 h-4 text-gray-500 absolute left-3 top-3" />
+          <input 
+            type="text" 
+            placeholder="Search timeline..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full bg-[#0c0c0e] border border-[#1a1a20] rounded-xl py-2 pl-9 pr-4 text-sm text-gray-300 focus:outline-none focus:border-green-500/50 transition"
+          />
         </div>
-        
-        <input 
-          type="text" 
-          placeholder="Search timeline..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="w-full md:w-64 bg-[#0c0c0e] border border-[#1a1a20] rounded-xl py-2 px-4 text-sm text-white focus:outline-none focus:border-blue-500/50"
-        />
       </div>
 
       {/* Heatmap */}
