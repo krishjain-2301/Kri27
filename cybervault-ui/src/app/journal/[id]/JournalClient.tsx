@@ -23,7 +23,8 @@ export default function JournalClient({ initialData, machineTemplate }: any) {
     personalConfidence: initialData.journal.personalConfidence || 0,
     needsReview: initialData.journal.needsReview === 1,
     isFavorite: initialData.journal.isFavorite === 1,
-    mood: initialData.journal.mood || ''
+    mood: initialData.journal.mood || '',
+    journalStatus: initialData.journal.journalStatus || 'Not Started'
   });
 
   const handleMetadataChange = async (key: string, value: any) => {
@@ -81,31 +82,11 @@ export default function JournalClient({ initialData, machineTemplate }: any) {
   return (
     <div className="max-w-5xl mx-auto pb-32 animate-in fade-in slide-in-from-bottom-4 duration-500 relative">
       
-      {/* Auto-Save Indicator */}
-      {saveStatus && (
-        <div className="absolute top-0 right-0 mt-4 mr-4 flex items-center gap-3">
-          {saveStatus && (
-            <div className="flex items-center gap-2 text-xs font-bold text-gray-500 bg-[#0c0c0e] px-3 py-1.5 rounded-full border border-[#1a1a20]">
-              <Save className="w-3 h-3" /> {saveStatus}
-            </div>
-          )}
-          <button onClick={() => setShowHistory(!showHistory)} className="flex items-center gap-2 text-xs font-bold text-gray-400 bg-[#0c0c0e] hover:bg-[#1a1a20] transition px-3 py-1.5 rounded-full border border-[#1a1a20]">
-            <History className="w-3 h-3" /> History
-          </button>
-          <button onClick={() => {
-              navigator.clipboard.writeText(initialData.journal.contentMarkdown || '');
-              setSaveStatus('Copied MD');
-              setTimeout(() => setSaveStatus(''), 3000);
-            }} 
-            className="flex items-center gap-2 text-xs font-bold text-gray-400 bg-[#0c0c0e] hover:bg-[#1a1a20] transition px-3 py-1.5 rounded-full border border-[#1a1a20]">
-            <Copy className="w-3 h-3" /> Copy Markdown
-          </button>
-        </div>
-      )}
+
 
       {/* METADATA HEADER */}
       <div className="mb-12 border-b border-[#1a1a20] pb-8 pt-6">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-start justify-between mb-8">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-2xl bg-green-500/10 border border-green-500/20 flex items-center justify-center">
               {htbItem.type === 'Machine' ? <Target className="w-8 h-8 text-green-400" /> : <BookOpen className="w-8 h-8 text-blue-400" />}
@@ -118,7 +99,35 @@ export default function JournalClient({ initialData, machineTemplate }: any) {
             </div>
           </div>
           
-          <div className="flex flex-col items-end">
+          <div className="flex flex-col items-end gap-8 pt-1">
+            <div className="flex items-center gap-3">
+              {saveStatus && (
+                <div className="flex items-center gap-2 text-xs font-bold text-gray-400 bg-[#0c0c0e] px-3 py-1.5 rounded-full border border-[#1a1a20] shadow-sm">
+                  <Save className="w-3 h-3" /> {saveStatus}
+                </div>
+              )}
+              <button onClick={() => setShowHistory(!showHistory)} className="flex items-center gap-2 text-xs font-bold text-gray-300 bg-[#151518] hover:bg-[#22222a] transition px-3 py-1.5 rounded-full border border-[#2a2a35]">
+                <History className="w-3 h-3" /> History
+              </button>
+              <button onClick={() => {
+                  navigator.clipboard.writeText(initialData.journal.contentMarkdown || '');
+                  setSaveStatus('Copied MD');
+                  setTimeout(() => setSaveStatus(''), 3000);
+                }} 
+                className="flex items-center gap-2 text-xs font-bold text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 transition px-3 py-1.5 rounded-full border border-blue-500/20 shadow-[0_0_10px_rgba(59,130,246,0.1)]">
+                <Copy className="w-3 h-3" /> Copy Markdown
+              </button>
+              <button onClick={() => {
+                  if (document.activeElement instanceof HTMLElement) {
+                    document.activeElement.blur();
+                  }
+                  setSaveStatus('Saved manually!');
+                  setTimeout(() => setSaveStatus(''), 3000);
+                }} 
+                className="flex items-center gap-2 text-xs font-bold text-green-400 bg-green-500/10 hover:bg-green-500/20 transition px-4 py-1.5 rounded-full border border-green-500/20 shadow-[0_0_15px_rgba(34,197,94,0.1)]">
+                <Save className="w-3 h-3" /> Save Journal
+              </button>
+            </div>
             <span className={`stakent-pill !px-3 !py-1 flex items-center gap-2 ${
               htbItem.status === 'Completed' || htbItem.status === 'Root Owned' ? 'text-green-400 bg-green-500/10 border-green-500/20' : 'text-purple-400 bg-purple-500/10 border-purple-500/20'
             }`}>
@@ -130,7 +139,15 @@ export default function JournalClient({ initialData, machineTemplate }: any) {
         <div className="flex gap-12 text-sm mt-8 border-t border-[#1a1a20] pt-6">
           <div>
             <span className="text-gray-500 uppercase tracking-wider text-xs font-bold block mb-1">Status</span>
-            <span className="font-semibold flex items-center gap-2 text-white">{initialData.journal.journalStatus}</span>
+            <select 
+              value={metadata.journalStatus}
+              onChange={(e) => handleMetadataChange('journalStatus', e.target.value)}
+              className="bg-transparent font-semibold text-white outline-none cursor-pointer border-b border-transparent hover:border-[#1a1a20] pb-1 -ml-1 pl-1"
+            >
+              <option value="Not Started" className="bg-[#0c0c0e]">Not Started</option>
+              <option value="In Progress" className="bg-[#0c0c0e]">In Progress</option>
+              <option value="Completed" className="bg-[#0c0c0e]">Completed</option>
+            </select>
           </div>
 
           <div>

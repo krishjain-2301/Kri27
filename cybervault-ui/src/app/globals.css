@@ -130,3 +130,13 @@ td:last-child {
   border-top-right-radius: 16px;
   border-bottom-right-radius: 16px;
 }
+
+/* BlockNote Editor Font Size Reduction */
+.cyber-editor-wrapper .bn-editor {
+  font-size: 0.9rem !important; /* Smaller base font */
+  line-height: 1.6 !important;
+}
+
+.cyber-editor-wrapper .bn-block-content[data-content-type="heading"] {
+  font-size: 1.1em !important; /* Scale headings down proportionately */
+}

@@ -48,17 +48,7 @@ function getProgressColor(pct: number) {
   return 'bg-gray-600';
 }
 
-// ── Progress Bar ────────────────────────────────────────────────────────────
-function ProgressBar({ pct }: { pct: number }) {
-  return (
-    <div className="w-20 h-1 bg-[#1a1a20] rounded-full overflow-hidden">
-      <div
-        className={`h-full rounded-full transition-all ${getProgressColor(pct)}`}
-        style={{ width: `${pct}%` }}
-      />
-    </div>
-  );
-}
+// ── Progress Bar removed ──────────────────────────────────────────────────
 
 // ── Journal Row ─────────────────────────────────────────────────────────────
 function JournalRow({
@@ -130,11 +120,7 @@ function JournalRow({
         {entry.mood || ''}
       </span>
 
-      {/* Progress */}
-      <div className="hidden md:flex items-center gap-2 flex-shrink-0">
-        <ProgressBar pct={pct} />
-        <span className="text-[10px] text-gray-600 w-7 text-right">{pct}%</span>
-      </div>
+      {/* Progress Removed */}
 
       {/* Word count */}
       <div className="hidden lg:flex items-center gap-1 text-xs text-gray-600 flex-shrink-0 w-20 justify-end">
@@ -224,19 +210,7 @@ function PreviewPanel({ entry }: { entry: JournalHubEntry | null }) {
           </div>
         </div>
 
-        {/* Progress bar */}
-        <div>
-          <div className="flex justify-between items-center mb-2">
-            <p className="text-[10px] text-gray-600 uppercase tracking-wider">Completion</p>
-            <p className="text-[10px] font-bold text-white">{pct}%</p>
-          </div>
-          <div className="w-full h-1.5 bg-[#1a1a20] rounded-full overflow-hidden">
-            <div
-              className={`h-full rounded-full transition-all ${getProgressColor(pct)}`}
-              style={{ width: `${pct}%` }}
-            />
-          </div>
-        </div>
+        {/* Progress bar Removed */}
 
         {/* Difficulty */}
         {entry.itemDifficulty && (

@@ -25,16 +25,10 @@ export async function saveJournalEntry(id: string, contentJson: string, contentM
   const newWords = contentMarkdown.split(/\s+/).length;
   const wordsAdded = newWords - oldWords;
 
-  // Calculate status based on content length
-  let status = 'Not Started';
-  if (contentMarkdown.length > 3000) status = 'Completed';
-  else if (contentMarkdown.length > 300) status = 'In Progress';
-
   await db.update(journal)
     .set({ 
       contentJson,
       contentMarkdown,
-      journalStatus: status,
       wordCount: newWords,
       updatedAt: new Date()
     })
@@ -67,6 +61,7 @@ export async function updatePersonalMetadata(id: string, data: any) {
     needsReview: data.needsReview ? 1 : 0,
     isFavorite: data.isFavorite ? 1 : 0,
     mood: data.mood,
+    journalStatus: data.journalStatus,
     updatedAt: new Date()
   }).where(eq(journal.id, id));
   return { success: true };
