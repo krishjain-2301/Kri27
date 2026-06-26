@@ -1,6 +1,6 @@
 import { db } from '@/lib/db/client';
 import { activityEvents } from '@/lib/db/schema';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { eq, and, desc, sql } from 'drizzle-orm';
 
 type EventType = 
@@ -69,7 +69,7 @@ export async function logActivityEvent(params: LogEventParams) {
 
   // Default: Insert new event
   await db.insert(activityEvents).values({
-    id: uuidv4(),
+    id: randomUUID(),
     eventType: params.eventType,
     entityType: params.entityType,
     entityId: params.entityId,
