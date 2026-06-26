@@ -23,3 +23,9 @@ export async function runSyncCommit(preview: SyncPreview) {
   const provider = await getProvider();
   return await commitSync(provider, preview);
 }
+
+export async function triggerManualSync() {
+  const preview = await runSyncPreview();
+  await runSyncCommit(preview);
+  return { success: true };
+}

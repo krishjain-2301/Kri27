@@ -11,11 +11,15 @@ interface CyberEditorProps {
   snapshotToRestoreJson?: string;
   markdownTemplate?: string;
   onStatsChange?: (stats: { words: number; readTime: number; codeBlocks: number; images: number; commands: number }) => void;
-  onAutoSave?: (contentJson: string, contentMarkdown: string) => void;
+  onAutoSave?: (contentJson: string, contentMarkdown: string, wordCount: number) => void;
+  onSnapshot?: (contentJson: string, contentMarkdown: string) => void;
 }
 
-export default function CyberEditor({ journalId, initialContentJson, snapshotToRestoreJson, markdownTemplate, onStatsChange, onAutoSave }: CyberEditorProps) {
+export default function CyberEditor({ journalId, initialContentJson, snapshotToRestoreJson, markdownTemplate, onStatsChange, onAutoSave, onSnapshot }: CyberEditorProps) {
   const [content, setContent] = useState<string>(initialContentJson || '');
+  const lastSavedHash = React.useRef<string>('');
+  const lastSnapshotTime = React.useRef<number>(Date.now());
+  
   // Initialize BlockNote
   const editor = useCreateBlockNote({
     initialContent: initialContentJson ? JSON.parse(initialContentJson) : undefined,
@@ -52,6 +56,21 @@ export default function CyberEditor({ journalId, initialContentJson, snapshotToR
     }
   }, [editor, snapshotToRestoreJson]);
 
+  // Handle manual snapshot on blur
+  useEffect(() => {
+    const handleBlur = () => {
+      if (editor && onSnapshot) {
+        const blocks = editor.document;
+        Promise.resolve(editor.blocksToMarkdownLossy(blocks)).then((markdown) => {
+          onSnapshot(JSON.stringify(blocks), markdown);
+          lastSnapshotTime.current = Date.now();
+        });
+      }
+    };
+    window.addEventListener('blur', handleBlur);
+    return () => window.removeEventListener('blur', handleBlur);
+  }, [editor, onSnapshot]);
+
   // Calculate stats and trigger autosave
   useEffect(() => {
     if (!editor) return;
@@ -63,9 +82,8 @@ export default function CyberEditor({ journalId, initialContentJson, snapshotToR
       let wordCount = 0;
       let codeBlocks = 0;
       let images = 0;
-      let commands = 0; // Simple heuristic: number of inline code strings or bash blocks
+      let commands = 0;
 
-      // Quick recursive block parsing for stats
       const traverse = (blocksArr: any[]) => {
         blocksArr.forEach(b => {
           if (b.type === 'paragraph' || b.type === 'heading') {
@@ -91,15 +109,26 @@ export default function CyberEditor({ journalId, initialContentJson, snapshotToR
 
       // Auto-save stringified blocks AND markdown
       if (onAutoSave) {
-        Promise.resolve(editor.blocksToMarkdownLossy(blocks)).then((markdown) => {
-          onAutoSave(JSON.stringify(blocks), markdown);
-        });
+        const jsonStr = JSON.stringify(blocks);
+        // Only save if content changed
+        if (jsonStr !== lastSavedHash.current) {
+          Promise.resolve(editor.blocksToMarkdownLossy(blocks)).then((markdown) => {
+            onAutoSave(jsonStr, markdown, wordCount);
+            lastSavedHash.current = jsonStr;
+            
+            // 10 minute snapshot
+            if (onSnapshot && Date.now() - lastSnapshotTime.current > 10 * 60 * 1000) {
+              onSnapshot(jsonStr, markdown);
+              lastSnapshotTime.current = Date.now();
+            }
+          });
+        }
       }
 
-    }, 2000); // 2-second autosave
+    }, 2000); // 2-second autosave loop
 
     return () => clearInterval(interval);
-  }, [editor, onStatsChange, onAutoSave]);
+  }, [editor, onStatsChange, onAutoSave, onSnapshot]);
 
   return (
     <div className="cyber-editor-wrapper bg-transparent text-white min-h-[500px] w-full">

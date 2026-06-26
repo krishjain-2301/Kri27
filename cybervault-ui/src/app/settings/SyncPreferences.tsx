@@ -40,7 +40,7 @@ export default function SyncPreferences({ initialAutoSync, initialInterval }: Sy
         <div className="flex items-center justify-between">
           <div>
             <p className="font-bold">Auto-Sync</p>
-            <p className="text-xs text-gray-500">Automatically sync progress in the background (Coming in Phase 6).</p>
+            <p className="text-xs text-gray-500">Automatically sync progress in the background while the app is open.</p>
           </div>
           <div 
             onClick={handleToggle}

@@ -162,9 +162,9 @@ export default function DashboardClient({ stats, recommendation, recentActivity,
             )}
 
             {recentActivity[0] ? (
-              <button className="bg-white text-black font-bold py-3 px-6 rounded-xl hover:bg-gray-200 transition flex items-center gap-2 w-fit">
-                Continue <ArrowRight className="w-4 h-4" />
-              </button>
+              <a href={`/journal/${recentActivity[0].journalId}`} className="bg-white text-black font-bold py-3 px-6 rounded-xl hover:bg-gray-200 transition flex items-center gap-2 w-fit">
+                Continue Writing <ArrowRight className="w-4 h-4" />
+              </a>
             ) : (
               <div className="h-12"></div>
             )}

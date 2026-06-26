@@ -16,6 +16,7 @@ import {
   User
 } from "lucide-react";
 import SidebarNav from "@/components/SidebarNav";
+import SyncManager from "@/components/SyncManager";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -39,6 +40,8 @@ export default async function RootLayout({
 
   const isConnected = userSettings.length > 0 && userSettings[0].htbAppToken;
   const username = userSettings[0]?.htbUsername || '';
+  const autoSync = userSettings[0]?.autoSync === 1 || userSettings[0]?.autoSync === true;
+  const syncIntervalStr = userSettings[0]?.syncInterval || '15 min';
   
   let syncText = 'Never synced';
   if (latestSync.length > 0 && latestSync[0].createdAt) {
@@ -68,21 +71,10 @@ export default async function RootLayout({
             </div>
 
             <div className="p-4 border-t border-[#1a1a20]">
-              <nav className="flex flex-col gap-2">
-                <a href="/settings" className="sidebar-link w-full flex items-center gap-3 px-3 py-2 text-gray-400 hover:text-white transition-colors">
-                  <Settings className="w-5 h-5" />
-                  <span>Settings</span>
-                </a>
-              </nav>
-              <div className="w-full flex items-center gap-3 p-3 rounded-2xl border border-green-500/20 bg-green-500/5 mt-4">
-                <div className="w-6 h-6 rounded bg-green-500/20 flex items-center justify-center">
-                  <span className="text-green-400 text-xs font-bold">●</span>
-                </div>
-                <div className="text-left">
-                  <p className="text-sm font-bold text-white">Local Vault</p>
-                  <p className="text-xs text-green-500/70">Tracking Active</p>
-                </div>
-              </div>
+              <a href="/settings" className="sidebar-link w-full flex items-center gap-3 px-3 py-2 text-gray-400 hover:text-white transition-colors">
+                <Settings className="w-5 h-5" />
+                <span>Settings</span>
+              </a>
             </div>
           </aside>
 
@@ -97,9 +89,7 @@ export default async function RootLayout({
                     <User className="w-4 h-4 text-green-400" /> {username}
                   </div>
                   <div className="w-px h-4 bg-[#1a1a20]"></div>
-                  <div className="text-gray-500">
-                    {syncText}
-                  </div>
+                  <SyncManager initialSyncText={syncText} autoSync={autoSync} syncIntervalStr={syncIntervalStr} />
                 </div>
               ) : (
                 <div className="flex items-center gap-2 text-sm text-gray-500 bg-[#0c0c0e] border border-[#1a1a20] px-4 py-2 rounded-xl">

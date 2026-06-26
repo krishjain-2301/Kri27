@@ -45,15 +45,29 @@ export default function JournalClient({ initialData, machineTemplate }: any) {
     fetchJournalHistory(initialData.journal.id).then(setHistoryItems);
   }, [initialData.journal.id]);
 
-  const handleAutoSave = async (contentJson: string, contentMarkdown: string) => {
+  const handleAutoSave = async (contentJson: string, contentMarkdown: string, wordCount: number) => {
     try {
-      const res = await autoSaveJournal(initialData.journal.id, contentJson, contentMarkdown);
+      const res = await autoSaveJournal(initialData.journal.id, contentJson, contentMarkdown, wordCount);
       if (res.success) {
         setSaveStatus(`Saved just now`);
         setTimeout(() => setSaveStatus(''), 3000);
       }
     } catch (e) {
       setSaveStatus('Error saving');
+    }
+  };
+
+  const handleSnapshot = async (contentJson: string, contentMarkdown: string) => {
+    try {
+      const { createJournalHistorySnapshot } = await import('@/actions/journal');
+      await createJournalHistorySnapshot(initialData.journal.id, contentJson, contentMarkdown);
+      setSaveStatus('Snapshot saved');
+      setTimeout(() => setSaveStatus(''), 3000);
+      
+      // Refresh history list
+      fetchJournalHistory(initialData.journal.id).then(setHistoryItems);
+    } catch (e) {
+      console.error('Failed to create snapshot', e);
     }
   };
 
@@ -172,7 +186,8 @@ export default function JournalClient({ initialData, machineTemplate }: any) {
             snapshotToRestoreJson={snapshotToRestoreJson}
             markdownTemplate={machineTemplate}
             onStatsChange={setStats} 
-            onAutoSave={handleAutoSave} 
+            onAutoSave={handleAutoSave}
+            onSnapshot={handleSnapshot}
           />
         </div>
 
