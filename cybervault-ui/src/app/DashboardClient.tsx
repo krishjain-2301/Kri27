@@ -34,7 +34,7 @@ export default function DashboardClient({ stats, recommendation, recentActivity,
                 .then(r => r.json())
                 .then(data => window.location.href = `/journal/${data.id}`);
             }}
-            className="stakent-pill px-4 py-2 border border-[#1a1a20] hover:bg-[#1a1a20] flex items-center gap-2 font-bold"
+            className="px-4 py-2 bg-[#0c0c0e] border border-[#1a1a20] hover:bg-white/5 hover:border-white/10 active:scale-95 transition-all cursor-pointer flex items-center gap-2 font-bold rounded-xl text-white"
           >
             <Plus className="w-4 h-4" /> Daily Note
           </button>
