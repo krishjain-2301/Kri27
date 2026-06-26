@@ -41,4 +41,18 @@ export class HTBMapper {
       points: c.points || 0,
     }));
   }
+
+  static toSherlockItems(data: HTBItemsListResponse): CyberVaultItem[] {
+    if (!data.data) return [];
+
+    return data.data.filter(s => s.is_owned).map(s => ({
+      providerId: `htb_s_${s.id}`,
+      name: s.name,
+      type: 'Sherlock',
+      difficulty: s.difficulty || 'Unknown',
+      status: 'Completed',
+      os: null,
+      points: s.points || 0,
+    }));
+  }
 }

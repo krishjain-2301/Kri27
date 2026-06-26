@@ -39,7 +39,8 @@ export async function getDashboardStats() {
   return {
     machines: allItems.filter(i => i.type === 'Machine').length,
     academyModules: allItems.filter(i => i.type === 'Academy').length,
-    challenges: allItems.filter(i => i.type === 'Challenge' || i.type === 'Sherlock').length,
+    challenges: allItems.filter(i => i.type === 'Challenge').length,
+    sherlocks: allItems.filter(i => i.type === 'Sherlock').length,
     totalSessions: allItems.length // Placeholder for total sessions
   };
 }

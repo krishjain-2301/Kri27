@@ -57,6 +57,7 @@ export default function SyncManager({
         disabled={isSyncing}
         className={`p-1.5 hover:bg-white/10 rounded-md transition text-gray-400 hover:text-white disabled:opacity-50 ${isSyncing ? 'animate-spin text-purple-400' : ''}`}
         title="Sync Now"
+        suppressHydrationWarning
       >
         <RefreshCw className="w-4 h-4" />
       </button>

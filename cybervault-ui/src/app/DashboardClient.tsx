@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { 
   ArrowRight, Target, Flame, Activity, Shield, 
   Terminal, Play, Plus, BookOpen, Clock, Calendar,
-  CheckCircle, GitCommit, FileText, Database
+  CheckCircle, GitCommit, FileText, Database, Search
 } from 'lucide-react';
 import ConnectionModal from '@/components/ConnectionModal';
 
@@ -138,28 +138,31 @@ export default function DashboardClient({ stats, recommendation, recentActivity,
             
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-xs text-purple-200/60 uppercase tracking-wider font-bold mb-1">Machine</p>
+                <p className="text-xs text-purple-200/60 uppercase tracking-wider font-bold mb-1">{recentActivity[0]?.type || 'Machine'}</p>
                 <h3 className="text-4xl font-bold mb-4">{recentActivity[0]?.title || 'Nothing yet'}</h3>
                 
                 {recentActivity[0] && (
                   <div className="flex gap-6 text-sm text-purple-100/80 mb-6 font-medium">
                     <span className="flex items-center gap-2"><Clock className="w-4 h-4 text-purple-400"/> Started Recently</span>
-                    <span className="flex items-center gap-2"><Target className="w-4 h-4 text-green-400"/> {recentActivity[0]?.status}</span>
+                    <span className="flex items-center gap-2">
+                      {recentActivity[0]?.type === 'Machine' ? <Target className="w-4 h-4 text-green-400"/> : 
+                       recentActivity[0]?.type === 'Sherlock' ? <Search className="w-4 h-4 text-blue-400"/> :
+                       <BookOpen className="w-4 h-4 text-green-400"/>} {recentActivity[0]?.status}
+                    </span>
                   </div>
                 )}
               </div>
               
               <div className="w-16 h-16 rounded-2xl bg-black/40 border border-white/10 flex items-center justify-center">
-                <Target className={`w-8 h-8 ${recentActivity.length > 0 ? 'text-green-400' : 'text-gray-600'}`} />
+                {recentActivity.length > 0 ? (
+                  recentActivity[0]?.type === 'Machine' ? <Target className="w-8 h-8 text-purple-400" /> :
+                  recentActivity[0]?.type === 'Sherlock' ? <Search className="w-8 h-8 text-blue-400" /> :
+                  <BookOpen className="w-8 h-8 text-green-400" />
+                ) : (
+                  <Target className="w-8 h-8 text-gray-600" />
+                )}
               </div>
             </div>
-
-            {recentActivity[0] && (
-              <div className="bg-black/40 border border-white/10 p-4 rounded-xl backdrop-blur-md mb-6 max-w-md">
-                <p className="text-xs text-purple-300/60 uppercase tracking-wider font-bold mb-1">Last Note</p>
-                <p className="text-sm font-mono text-gray-300">Found anonymous SMB share containing backup configs. Need to check for credentials inside vsftpd.conf.</p>
-              </div>
-            )}
 
             {recentActivity[0] ? (
               <a href={`/journal/${recentActivity[0].journalId}`} className="bg-white text-black font-bold py-3 px-6 rounded-xl hover:bg-gray-200 transition flex items-center gap-2 w-fit">
@@ -184,9 +187,13 @@ export default function DashboardClient({ stats, recommendation, recentActivity,
               recentActivity.map((activity: any) => (
                 <div key={activity.id} className="flex items-center gap-4">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center border ${
-                    activity.type === 'Machine' ? 'bg-purple-500/10 border-purple-500/20' : 'bg-green-500/10 border-green-500/20'
+                    activity.type === 'Machine' ? 'bg-purple-500/10 border-purple-500/20' : 
+                    activity.type === 'Sherlock' ? 'bg-blue-500/10 border-blue-500/20' :
+                    'bg-green-500/10 border-green-500/20'
                   }`}>
-                    {activity.type === 'Machine' ? <Target className="w-5 h-5 text-purple-400" /> : <BookOpen className="w-5 h-5 text-green-400" />}
+                    {activity.type === 'Machine' ? <Target className="w-5 h-5 text-purple-400" /> : 
+                     activity.type === 'Sherlock' ? <Search className="w-5 h-5 text-blue-400" /> :
+                     <BookOpen className="w-5 h-5 text-green-400" />}
                   </div>
                   <div>
                     <p className="font-semibold text-sm">{activity.title}</p>
@@ -201,16 +208,20 @@ export default function DashboardClient({ stats, recommendation, recentActivity,
       </div>
 
       {/* STATS ROW */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-8">
-        <div className="stakent-glass p-6 text-center group hover:border-green-500/30 transition">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+        <div className="stakent-glass p-6 text-center group hover:border-purple-500/30 transition">
           <p className="text-4xl font-bold mb-2">{stats.machines}</p>
           <p className="text-xs text-gray-500 uppercase tracking-wider font-bold">Machines</p>
         </div>
-        <div className="stakent-glass p-6 text-center group hover:border-red-500/30 transition">
+        <div className="stakent-glass p-6 text-center group hover:border-green-500/30 transition">
           <p className="text-4xl font-bold mb-2">{stats.challenges}</p>
           <p className="text-xs text-gray-500 uppercase tracking-wider font-bold">Challenges</p>
         </div>
-        <div className="stakent-glass p-6 text-center group hover:border-purple-500/30 transition">
+        <div className="stakent-glass p-6 text-center group hover:border-blue-500/30 transition">
+          <p className="text-4xl font-bold mb-2">{stats.sherlocks || 0}</p>
+          <p className="text-xs text-gray-500 uppercase tracking-wider font-bold">Sherlocks</p>
+        </div>
+        <div className="stakent-glass p-6 text-center group hover:border-white/30 transition">
           <p className="text-4xl font-bold mb-2">{stats.totalSessions}</p>
           <p className="text-xs text-gray-500 uppercase tracking-wider font-bold">Total Syncs</p>
         </div>

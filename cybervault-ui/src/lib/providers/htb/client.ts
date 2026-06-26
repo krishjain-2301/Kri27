@@ -78,4 +78,8 @@ export class HTBClient {
   async getChallengeOwns(): Promise<HTBItemsListResponse> {
     return this.fetch<HTBItemsListResponse>('/challenges?per_page=100', HTBItemsListSchema);
   }
+
+  async getSherlockOwns(): Promise<HTBItemsListResponse> {
+    return this.fetch<HTBItemsListResponse>('/sherlocks?per_page=100', HTBItemsListSchema);
+  }
 }

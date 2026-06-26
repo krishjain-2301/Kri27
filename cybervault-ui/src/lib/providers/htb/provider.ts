@@ -57,7 +57,15 @@ export class HackTheBoxProvider implements LearningProvider {
       console.warn('Could not fetch HTB challenges:', e);
     }
 
-    // 3. Academy is skipped for now, as it requires a different host/scope
+    // 3. Fetch Sherlocks safely
+    try {
+      const sherlocks = await this.client.getSherlockOwns();
+      items.push(...HTBMapper.toSherlockItems(sherlocks));
+    } catch (e) {
+      console.warn('Could not fetch HTB sherlocks:', e);
+    }
+
+    // 4. Academy is skipped for now, as it requires a different host/scope
 
     return items;
   }

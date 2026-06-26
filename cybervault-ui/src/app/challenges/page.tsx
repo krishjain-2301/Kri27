@@ -1,5 +1,5 @@
 import React from 'react';
-import { Swords, Target, ShieldCheck } from 'lucide-react';
+import { Swords, Target, ShieldCheck, BookOpen, Search } from 'lucide-react';
 import { getChallenges } from '@/lib/queries/challenges';
 
 export const dynamic = 'force-dynamic';
@@ -41,9 +41,14 @@ export default async function ChallengesPage() {
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center gap-3">
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center border ${
-                  t.status.includes('Owned') || t.status === 'Completed' ? 'bg-green-500/10 border-green-500/20' : 'bg-purple-500/10 border-purple-500/20'
+                  t.status.includes('Owned') || t.status === 'Completed' ? 'bg-green-500/10 border-green-500/20' : 
+                  t.type === 'Sherlock' ? 'bg-blue-500/10 border-blue-500/20' :
+                  'bg-purple-500/10 border-purple-500/20'
                 }`}>
-                  {t.status.includes('Owned') || t.status === 'Completed' ? <ShieldCheck className="w-6 h-6 text-green-400" /> : <Target className="w-6 h-6 text-purple-400" />}
+                  {t.status.includes('Owned') || t.status === 'Completed' ? <ShieldCheck className="w-6 h-6 text-green-400" /> : 
+                   t.type === 'Sherlock' ? <Search className="w-6 h-6 text-blue-400" /> :
+                   t.type === 'Machine' ? <Target className="w-6 h-6 text-purple-400" /> :
+                   <BookOpen className="w-6 h-6 text-purple-400" />}
                 </div>
                 <div>
                   <h3 className="font-bold text-lg">{t.title}</h3>

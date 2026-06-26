@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
-import { ShieldCheck, Target, Clock, Calendar, Hash, Image as ImageIcon, Terminal, BookOpen, Save, Star, AlertTriangle, Heart, History, Download, Copy, RefreshCcw } from 'lucide-react';
+import { ShieldCheck, Target, Clock, Calendar, Hash, Image as ImageIcon, Terminal, BookOpen, Save, Star, AlertTriangle, Heart, History, Download, Copy, RefreshCcw, Search } from 'lucide-react';
 import { autoSaveJournal, updatePersonalMetadata, fetchJournalHistory } from '@/actions/journal';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -89,7 +89,9 @@ export default function JournalClient({ initialData, machineTemplate }: any) {
         <div className="flex items-start justify-between mb-8">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-2xl bg-green-500/10 border border-green-500/20 flex items-center justify-center">
-              {htbItem.type === 'Machine' ? <Target className="w-8 h-8 text-green-400" /> : <BookOpen className="w-8 h-8 text-blue-400" />}
+              {htbItem.type === 'Machine' ? <Target className="w-8 h-8 text-green-400" /> : 
+               htbItem.type === 'Sherlock' ? <Search className="w-8 h-8 text-blue-400" /> :
+               <BookOpen className="w-8 h-8 text-purple-400" />}
             </div>
             <div>
               <h1 className="text-4xl font-bold mb-1 flex items-center gap-3">
