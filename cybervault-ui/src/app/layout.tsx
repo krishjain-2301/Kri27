@@ -41,7 +41,7 @@ export default async function RootLayout({
 
   const isConnected = userSettings.length > 0 && userSettings[0].htbAppToken;
   const username = userSettings[0]?.htbUsername || '';
-  const autoSync = userSettings[0]?.autoSync === 1 || userSettings[0]?.autoSync === true;
+  const autoSync = userSettings[0]?.autoSync === true;
   const syncIntervalStr = userSettings[0]?.syncInterval || '15 min';
   
   let syncText = 'Never synced';

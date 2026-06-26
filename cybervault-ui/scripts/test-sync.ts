@@ -19,7 +19,7 @@ async function testSync() {
   let userId;
   try {
     const userInfo = await client.getUserInfo();
-    userId = userInfo.info.id;
+    userId = (userInfo as any).info.id;
     console.log("User ID:", userId);
   } catch (e) {
     console.error("Failed to get user info:", e);

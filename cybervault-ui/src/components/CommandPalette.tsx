@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Command } from 'cmdk';
 import { useRouter } from 'next/navigation';
 import { searchVault, SearchResult } from '@/actions/search';
-import { Search, Terminal, BookOpen, FileText, Image as ImageIcon, RefreshCw, LayoutDashboard } from 'lucide-react';
+import { Search, Terminal, BookOpen, FileText, Image as ImageIcon, RefreshCw, LayoutDashboard, Activity, Swords } from 'lucide-react';
 import { triggerManualSync } from '@/actions/sync';
 
 export function CommandPalette() {
@@ -85,13 +85,13 @@ export function CommandPalette() {
         {!query && (
           <>
             <Command.Group heading={<div className="px-2 py-1 text-xs font-bold text-gray-500 uppercase tracking-widest">Navigation</div>}>
-              <Command.Item onSelect={() => runCommand(() => router.push('/'))} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 rounded-lg hover:bg-white/5 hover:text-white cursor-pointer data-[selected=true]:bg-white/5 data-[selected=true]:text-white transition">
+              <Command.Item onSelect={() => { setOpen(false); router.push('/'); }} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 rounded-lg hover:bg-white/5 hover:text-white cursor-pointer data-[selected=true]:bg-white/5 data-[selected=true]:text-white transition">
                 <LayoutDashboard className="w-4 h-4" /> Dashboard
               </Command.Item>
-              <Command.Item onSelect={() => runCommand(() => router.push('/timeline'))} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 rounded-lg hover:bg-white/5 hover:text-white cursor-pointer data-[selected=true]:bg-white/5 data-[selected=true]:text-white transition">
+              <Command.Item onSelect={() => { setOpen(false); router.push('/timeline'); }} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 rounded-lg hover:bg-white/5 hover:text-white cursor-pointer data-[selected=true]:bg-white/5 data-[selected=true]:text-white transition">
                 <Activity className="w-4 h-4" /> Timeline
               </Command.Item>
-              <Command.Item onSelect={() => runCommand(() => router.push('/challenges'))} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 rounded-lg hover:bg-white/5 hover:text-white cursor-pointer data-[selected=true]:bg-white/5 data-[selected=true]:text-white transition">
+              <Command.Item onSelect={() => { setOpen(false); router.push('/challenges'); }} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 rounded-lg hover:bg-white/5 hover:text-white cursor-pointer data-[selected=true]:bg-white/5 data-[selected=true]:text-white transition">
                 <Swords className="w-4 h-4" /> Challenges
               </Command.Item>
               <Command.Item onSelect={() => { setOpen(false); router.push('/journals?type=Daily'); }} className="flex items-center px-3 py-3 rounded-lg cursor-pointer aria-selected:bg-white/5 aria-selected:text-white text-gray-400 group transition-colors">

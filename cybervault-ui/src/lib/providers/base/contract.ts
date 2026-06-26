@@ -5,12 +5,16 @@ export interface SyncPreview {
   updatedItems: CyberVaultItem[];
 }
 
+export type ConnectionResult =
+  | { ok: true; username: string }
+  | { ok: false; reason: string };
+
 export interface LearningProvider {
   name: string;
   version: string;
 
   /** Validates the current connection and returns true if healthy */
-  validateConnection(): Promise<boolean>;
+  validateConnection(): Promise<ConnectionResult>;
 
   /** Retrieves the core user profile from the remote source */
   getProfile(): Promise<UserProfile | null>;

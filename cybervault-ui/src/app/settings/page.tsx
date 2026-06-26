@@ -22,7 +22,7 @@ export default async function SettingsPage() {
       if (res.ok) {
         connectionResult = { ok: true, message: 'Healthy', username: res.username };
       } else {
-        const errorMessages = {
+        const errorMessages: Record<string, string> = {
           Unauthorized: 'Invalid API token',
           RateLimited: 'Rate limit exceeded',
           ValidationError: 'Unexpected response from HTB',
