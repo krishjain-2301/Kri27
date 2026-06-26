@@ -7,27 +7,33 @@ import path from 'path';
 const dbPath = path.resolve(process.cwd(), 'CyberVault_Data', 'vault.db');
 const sqlite = new Database(dbPath);
 
-// Setup FTS5 Virtual Table for the journal search
-sqlite.exec(`
-  CREATE VIRTUAL TABLE IF NOT EXISTS journal_fts USING fts5(
-    id UNINDEXED, 
-    title, 
-    content, 
-    tokenize='trigram'
-  );
-  
-  -- Create triggers to keep FTS table in sync
-  CREATE TRIGGER IF NOT EXISTS journal_fts_insert AFTER INSERT ON journal BEGIN
-    INSERT INTO journal_fts(id, title, content) VALUES (new.id, new.title, new.content_markdown);
-  END;
-  
-  CREATE TRIGGER IF NOT EXISTS journal_fts_delete AFTER DELETE ON journal BEGIN
-    DELETE FROM journal_fts WHERE id = old.id;
-  END;
-  
-  CREATE TRIGGER IF NOT EXISTS journal_fts_update AFTER UPDATE ON journal BEGIN
-    UPDATE journal_fts SET title = new.title, content = new.content_markdown WHERE id = new.id;
-  END;
-`);
+try {
+  sqlite.exec(`
+    CREATE VIRTUAL TABLE IF NOT EXISTS journal_fts USING fts5(
+      id UNINDEXED, 
+      title, 
+      content, 
+      tokenize='trigram'
+    );
+    
+    -- Create triggers to keep FTS table in sync
+    CREATE TRIGGER IF NOT EXISTS journal_fts_insert AFTER INSERT ON journal BEGIN
+      INSERT INTO journal_fts(id, title, content) VALUES (new.id, new.title, new.content_markdown);
+    END;
+    
+    CREATE TRIGGER IF NOT EXISTS journal_fts_delete AFTER DELETE ON journal BEGIN
+      DELETE FROM journal_fts WHERE id = old.id;
+    END;
+    
+    CREATE TRIGGER IF NOT EXISTS journal_fts_update AFTER UPDATE ON journal BEGIN
+      UPDATE journal_fts SET title = new.title, content = new.content_markdown WHERE id = new.id;
+    END;
+  `);
+} catch (e: any) {
+  // Ignore errors during initial creation when the 'journal' table might not exist yet
+  if (!e.message.includes('no such table')) {
+    console.error('FTS Initialization Error:', e);
+  }
+}
 
 export const db = drizzle(sqlite, { schema });
