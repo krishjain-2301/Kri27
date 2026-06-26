@@ -35,7 +35,7 @@ export default async function SettingsPage() {
     }
   }
 
-  const historyLogs = await db.select().from(syncHistory).orderBy(desc(syncHistory.createdAt)).limit(10);
+  const historyLogs = await db.select().from(syncHistory).orderBy(desc(syncHistory.createdAt)).limit(5);
 
   return (
     <div className="max-w-4xl mx-auto pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
