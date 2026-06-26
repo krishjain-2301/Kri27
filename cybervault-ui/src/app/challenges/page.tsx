@@ -13,7 +13,7 @@ export default async function ChallengesPage() {
       <div className="flex items-end justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
-            <Swords className="w-8 h-8 text-red-500" /> Challenges
+            <Swords className="w-8 h-8 text-red-500" /> Engagements
           </h1>
           <p className="text-gray-500 text-sm">Your practical targets: Machines, Challenges, and Sherlocks.</p>
         </div>

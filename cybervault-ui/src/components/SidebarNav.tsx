@@ -31,7 +31,7 @@ function SidebarNavContent() {
         className={`sidebar-link w-full ${pathname === '/challenges' ? 'active' : ''}`}
       >
         <Swords className="w-5 h-5" />
-        <span>Challenges</span>
+        <span>Engagements</span>
       </Link>
       <Link 
         href="/journals" 
