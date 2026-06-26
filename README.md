@@ -6,6 +6,9 @@ Plethora is an advanced Second Brain and Cybersecurity OS, built specifically fo
 
 - Local-First & Private: Everything is stored locally in an SQLite database. Your private write-ups never touch the cloud.
 - Hack The Box Auto-Sync: Connect your HTB App Token to automatically pull in your active and completed Machines, Challenges, and Sherlocks.
+  - Smart Auto-Sync: Set a custom background interval (e.g. 30 minutes) to seamlessly fetch new items while you work, with smart catch-up logic when you reopen the app.
+- Global Activity Timeline: A unified, searchable chronological feed tracking every action you take (solving machines, updating journals, adding screenshots, and more).
+- GitHub-Style Study Heatmap: A visual 90-day contribution grid on your timeline to track your daily hacking consistency, with dynamic streak and action tracking on your dashboard.
 - Rich Journaling Engine: A powerful BlockNote-based editor with instant auto-save, markdown compilation, and inline screenshot pasting.
 - Command Palette (Ctrl+Q): A fully keyboard-driven command center.
   - FTS5 Search: Instantly search thousands of journals using an ultra-fast SQLite Full-Text Search engine.
