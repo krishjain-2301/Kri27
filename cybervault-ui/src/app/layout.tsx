@@ -45,8 +45,9 @@ export default async function RootLayout({
   const syncIntervalStr = userSettings[0]?.syncInterval || '15 min';
   
   let syncText = 'Never synced';
+  let lastSyncTimestamp = 0;
   if (latestSync.length > 0 && latestSync[0].createdAt) {
-    // SQLite timestamps might need parsing
+    lastSyncTimestamp = new Date(latestSync[0].createdAt).getTime();
     syncText = `Synced ${formatDistanceToNow(new Date(latestSync[0].createdAt), { addSuffix: true })}`;
   }
   return (
@@ -88,7 +89,12 @@ export default async function RootLayout({
                     <User className="w-4 h-4 text-green-400" /> {username}
                   </div>
                   <div className="w-px h-4 bg-[#1a1a20]"></div>
-                  <SyncManager initialSyncText={syncText} autoSync={autoSync} syncIntervalStr={syncIntervalStr} />
+                  <SyncManager 
+                    initialSyncText={syncText} 
+                    autoSync={autoSync} 
+                    syncIntervalStr={syncIntervalStr} 
+                    lastSyncTimestamp={lastSyncTimestamp} 
+                  />
                 </div>
               ) : (
                 <div className="flex items-center gap-2 text-sm text-gray-500 bg-[#0c0c0e] border border-[#1a1a20] px-4 py-2 rounded-xl">

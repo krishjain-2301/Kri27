@@ -3,7 +3,17 @@ import React, { useState, useEffect } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { triggerManualSync } from '@/actions/sync';
 
-export default function SyncManager({ initialSyncText, autoSync, syncIntervalStr }: { initialSyncText: string, autoSync: boolean, syncIntervalStr: string }) {
+export default function SyncManager({ 
+  initialSyncText, 
+  autoSync, 
+  syncIntervalStr,
+  lastSyncTimestamp 
+}: { 
+  initialSyncText: string, 
+  autoSync: boolean, 
+  syncIntervalStr: string,
+  lastSyncTimestamp?: number 
+}) {
   const [isSyncing, setIsSyncing] = useState(false);
 
   const handleSync = async () => {
@@ -27,12 +37,17 @@ export default function SyncManager({ initialSyncText, autoSync, syncIntervalStr
     if (syncIntervalStr === '30 min') intervalMs = 30 * 60 * 1000;
     if (syncIntervalStr === '1 hour') intervalMs = 60 * 60 * 1000;
 
+    // Check if we should sync immediately on mount because we missed the window
+    if (lastSyncTimestamp && Date.now() - lastSyncTimestamp > intervalMs) {
+      handleSync();
+    }
+
     const timer = setInterval(() => {
       handleSync();
     }, intervalMs);
 
     return () => clearInterval(timer);
-  }, [autoSync, syncIntervalStr]);
+  }, [autoSync, syncIntervalStr, lastSyncTimestamp]);
 
   return (
     <div className="flex items-center gap-2">
