@@ -45,3 +45,4 @@ CyberVault_Data/
 *.db
 *.db-journal
 *.har
+/public/uploads/
