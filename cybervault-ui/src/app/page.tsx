@@ -14,6 +14,7 @@ export default async function DashboardPage() {
   const activityStats = await getActivityStats();
   const userSettings = await db.select().from(settings).limit(1);
   const isConnected = userSettings.length > 0 && userSettings[0].htbAppToken;
+  const username = userSettings.length > 0 ? userSettings[0].htbUsername : null;
 
   return (
     <DashboardClient 
@@ -22,6 +23,7 @@ export default async function DashboardPage() {
       recentActivity={recentActivity} 
       activityStats={activityStats}
       isConnected={isConnected}
+      username={username}
     />
   );
 }

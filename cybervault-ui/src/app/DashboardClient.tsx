@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import ConnectionModal from '@/components/ConnectionModal';
 
-export default function DashboardClient({ stats, recommendation, recentActivity, activityStats, isConnected }: any) {
+export default function DashboardClient({ stats, recommendation, recentActivity, activityStats, isConnected, username }: any) {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
 
   return (
@@ -23,7 +23,7 @@ export default function DashboardClient({ stats, recommendation, recentActivity,
       {/* HEADER */}
       <div className="flex items-end justify-between mb-8 mt-4">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Welcome back.</h1>
+          <h1 className="text-3xl font-bold mb-2">Welcome back{username ? `, ${username}` : ''}.</h1>
           <p className="text-gray-500 text-sm">Here is what you've accomplished and where you left off.</p>
         </div>
         <div className="flex items-center gap-6">
