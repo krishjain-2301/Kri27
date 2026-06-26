@@ -58,7 +58,7 @@ export default function DashboardClient({ stats, recommendation, recentActivity,
         <div className="mb-8 p-8 rounded-2xl border border-green-500/20 bg-green-500/5 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="flex-1">
             <h2 className="text-3xl font-bold text-white mb-4">
-              Your CyberVault is empty.
+              Connect to Hack The Box
             </h2>
             <p className="text-gray-400 text-lg mb-6 max-w-2xl">
               Once connected, we'll automatically import:
