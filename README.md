@@ -41,10 +41,12 @@ Plethora is an advanced Second Brain and Cybersecurity OS, built specifically fo
    Navigate to http://localhost:3001 in your browser.
 
 ## First Setup
-1. When you first open the Dashboard, click "Connect Hack The Box".
-2. Enter your HTB App Token (You can generate this in your HTB Profile Settings).
-3. Plethora will securely save this token to your local database and immediately begin importing your Machines and Challenges.
-4. Go to the Journal Hub to start writing!
+1. Open Plethora in your browser (`http://localhost:3001`) and click **Connect Hack The Box**.
+2. To get your App Token, navigate to the [Hack The Box Dashboard](https://app.hackthebox.com/).
+3. Click on **HTB Labs** and select **Start Playing**.
+4. Once you reach the labs website, navigate to your **Profile Settings**.
+5. Go to the **App Tokens** section and generate a new token.
+6. Copy the generated token, paste it into Plethora, and click connect! Plethora will securely save this to your local database and begin importing your progress.
 
 ## Architecture & Security
 Plethora uses a local SQLite database (vault.db) stored inside the CyberVault_Data/ directory. This directory is strictly ignored in .gitignore, ensuring your private notes, screenshots, and HTB App Tokens are never accidentally pushed to a remote repository.
