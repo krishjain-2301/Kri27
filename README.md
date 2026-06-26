@@ -2,6 +2,17 @@
 
 Plethora is an advanced Second Brain and Cybersecurity OS, built specifically for hackers, bug bounty hunters, and security researchers. It natively syncs with Hack The Box to track your progress and provides a robust, local-first journaling system for your write-ups.
 
+## Screenshots
+
+<p align="center">
+  <img src="docs/screenshots/dashboard.png" width="49%" alt="Dashboard" />
+  <img src="docs/screenshots/timeline.png" width="49%" alt="Activity Timeline" />
+</p>
+<p align="center">
+  <img src="docs/screenshots/challenges.png" width="49%" alt="HTB Challenges" />
+  <img src="docs/screenshots/journals.png" width="49%" alt="Journal Hub" />
+</p>
+
 ## Features
 
 - Local-First & Private: Everything is stored locally in an SQLite database. Your private write-ups never touch the cloud.
