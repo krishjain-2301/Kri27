@@ -18,7 +18,7 @@ sqlite.exec(`
   
   -- Create triggers to keep FTS table in sync
   CREATE TRIGGER IF NOT EXISTS journal_fts_insert AFTER INSERT ON journal BEGIN
-    INSERT INTO journal_fts(id, title, content) VALUES (new.id, new.title, new.content);
+    INSERT INTO journal_fts(id, title, content) VALUES (new.id, new.title, new.content_markdown);
   END;
   
   CREATE TRIGGER IF NOT EXISTS journal_fts_delete AFTER DELETE ON journal BEGIN
@@ -26,7 +26,7 @@ sqlite.exec(`
   END;
   
   CREATE TRIGGER IF NOT EXISTS journal_fts_update AFTER UPDATE ON journal BEGIN
-    UPDATE journal_fts SET title = new.title, content = new.content WHERE id = new.id;
+    UPDATE journal_fts SET title = new.title, content = new.content_markdown WHERE id = new.id;
   END;
 `);
 

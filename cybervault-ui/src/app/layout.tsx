@@ -17,11 +17,12 @@ import {
 } from "lucide-react";
 import SidebarNav from "@/components/SidebarNav";
 import SyncManager from "@/components/SyncManager";
+import { CommandPalette } from "@/components/CommandPalette";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Plethora - Stakent Theme",
+  title: "Plethora",
   description: "Advanced Cybersecurity OS",
 };
 
@@ -103,6 +104,7 @@ export default async function RootLayout({
 
           </div>
         </div>
+        <CommandPalette />
       </body>
     </html>
   );
