@@ -2,9 +2,15 @@ import { drizzle } from 'drizzle-orm/better-sqlite3';
 import Database from 'better-sqlite3';
 import * as schema from './schema';
 import path from 'path';
+import fs from 'fs';
 
 // Use a local file for the SQLite database, isolating it inside CyberVault_Data
-const dbPath = path.resolve(process.cwd(), 'CyberVault_Data', 'vault.db');
+const dbDir = path.resolve(process.cwd(), 'CyberVault_Data');
+if (!fs.existsSync(dbDir)) {
+  fs.mkdirSync(dbDir, { recursive: true });
+}
+
+const dbPath = path.resolve(dbDir, 'vault.db');
 const sqlite = new Database(dbPath);
 
 try {

@@ -33,6 +33,8 @@ Plethora is an advanced Second Brain and Cybersecurity OS, built specifically fo
 - Node.js (v18 or higher)
 - npm or pnpm
 - Hack The Box App Token (for syncing)
+> [!WARNING]  
+> **Windows Users:** This project uses `better-sqlite3` which requires compilation. You MUST have Python and the **Visual Studio C++ Build Tools** installed on your machine before running `npm install`, otherwise the installation will fail!
 
 ### Installation
 
@@ -45,10 +47,15 @@ Plethora is an advanced Second Brain and Cybersecurity OS, built specifically fo
 
    (Note for Python users: Node.js uses package.json exactly like a requirements.txt file. Running the command above will automatically read the package.json file and install all required libraries into a local node_modules folder.)
 
-3. Run the application:
+3. Initialize the Database:
+   npm run db:push
+
+   (This creates the SQLite database and all necessary tables inside the local CyberVault_Data folder.)
+
+4. Run the application:
    npm run dev
 
-4. Open Plethora:
+5. Open Plethora:
    Navigate to http://localhost:3001 in your browser.
 
 ## First Setup

@@ -6,5 +6,6 @@ export default {
   dialect: 'sqlite',
   dbCredentials: {
     url: './CyberVault_Data/vault.db',
-  }
+  },
+  tablesFilter: ["!journal_fts*"],
 } satisfies Config;
