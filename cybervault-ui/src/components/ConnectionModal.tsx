@@ -99,6 +99,18 @@ export default function ConnectionModal({ isOpen, onClose, onComplete }: { isOpe
                 </div>
               </div>
 
+              <div className="mb-6 p-4 rounded-xl bg-purple-500/10 border border-purple-500/20 text-sm text-purple-200">
+                <p className="font-bold mb-2 text-purple-300">How to get your App Token:</p>
+                <ol className="list-decimal pl-5 space-y-1 text-purple-200/80">
+                  <li>Navigate to the Hack The Box Dashboard.</li>
+                  <li>Click on HTB Labs and select <strong>Start Playing</strong>.</li>
+                  <li>Once you reach the labs website, navigate to your <strong>Profile Settings</strong>.</li>
+                  <li>Go to the <strong>App Tokens</strong> section and generate a new token.</li>
+                  <li>Copy the generated token, paste it below, and click connect!</li>
+                </ol>
+                <p className="mt-3 text-xs opacity-75">Plethora will securely save this to your local database and begin importing your progress.</p>
+              </div>
+
               <div className="space-y-4 mb-8">
                 <div>
                   <label className="text-xs uppercase tracking-wider font-bold text-gray-500 mb-1 block">Username</label>

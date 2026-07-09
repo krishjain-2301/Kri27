@@ -1,6 +1,6 @@
 # Plethora
 
-Plethora is an advanced Second Brain and Cybersecurity OS, built specifically for hackers, bug bounty hunters, and security researchers. It natively syncs with Hack The Box to track your progress and provides a robust, local-first journaling system for your write-ups.
+Plethora is an advanced Second Brain and Cybersecurity OS, built specifically for hackers, bug bounty hunters, and security researchers. It natively syncs with Hack The Box to track your progress and provides a robust, browser-based journaling system for your write-ups.
 
 ## Screenshots
 
@@ -15,17 +15,15 @@ Plethora is an advanced Second Brain and Cybersecurity OS, built specifically fo
 
 ## Features
 
-- Local-First & Private: Everything is stored locally in an SQLite database. Your private write-ups never touch the cloud.
-- Hack The Box Auto-Sync: Connect your HTB App Token to automatically pull in your active and completed Machines, Challenges, and Sherlocks.
-  - Smart Auto-Sync: Set a custom background interval (e.g. 30 minutes) to seamlessly fetch new items while you work, with smart catch-up logic when you reopen the app.
-- Global Activity Timeline: A unified, searchable chronological feed tracking every action you take (solving machines, updating journals, adding screenshots, and more).
-- GitHub-Style Study Heatmap: A visual 90-day contribution grid on your timeline to track your daily hacking consistency, with dynamic streak and action tracking on your dashboard.
-- Rich Journaling Engine: A powerful BlockNote-based editor with instant auto-save, markdown compilation, and inline screenshot pasting.
-- Command Palette (Ctrl+Q): A fully keyboard-driven command center.
-  - FTS5 Search: Instantly search thousands of journals using an ultra-fast SQLite Full-Text Search engine.
-  - Dynamic Command Extraction: Type a command like nmap into the palette, and Plethora will automatically extract matching bash/powershell commands from your past write-ups and tell you exactly where you used them.
-  - Quick Navigation: Jump instantly to your Dashboard, Journal Hub, or Daily Notes.
-- Daily Notes: A dedicated space for general studying, scratchpads, and meeting notes, kept completely separate from your HTB write-ups.
+- **100% Client-Side & Private**: Everything is stored completely within your browser using IndexedDB (via Dexie.js). Your private write-ups and API keys never touch any backend server.
+- **Hack The Box Auto-Sync**: Connect your HTB App Token to automatically pull in your active and completed Machines, Challenges, and Sherlocks via a built-in CORS proxy.
+  - **Smart Auto-Sync**: Set a custom background interval (e.g., 30 minutes) to seamlessly fetch new items while you work.
+- **Global Activity Timeline**: A unified, searchable chronological feed tracking every action you take (solving machines, updating journals, adding screenshots, and more).
+- **Rich Journaling Engine**: A powerful BlockNote-based editor with instant auto-save, markdown compilation, and inline screenshot pasting. Images are stored safely as base64 Data URIs directly in your local browser storage.
+- **Command Palette (Ctrl+Q)**: A fully keyboard-driven command center.
+  - **Instant Search**: Instantly search thousands of journals using a fast client-side search engine.
+  - **Quick Navigation**: Jump instantly to your Dashboard, Journal Hub, or Daily Notes.
+- **Daily Notes**: A dedicated space for general studying, scratchpads, and meeting notes, kept completely separate from your HTB write-ups.
 
 ## Getting Started
 
@@ -33,38 +31,36 @@ Plethora is an advanced Second Brain and Cybersecurity OS, built specifically fo
 - Node.js (v18 or higher)
 - npm or pnpm
 - Hack The Box App Token (for syncing)
-> [!WARNING]  
-> **Windows Users:** This project uses `better-sqlite3` which requires compilation. You MUST have Python and the **Visual Studio C++ Build Tools** installed on your machine before running `npm install`, otherwise the installation will fail!
 
 ### Installation
 
 1. Clone the repository:
+   ```bash
    git clone https://github.com/krishjain-2301/Kri27.git
    cd Kri27/cybervault-ui
+   ```
 
 2. Install dependencies:
+   ```bash
    npm install
+   ```
 
-   (Note for Python users: Node.js uses package.json exactly like a requirements.txt file. Running the command above will automatically read the package.json file and install all required libraries into a local node_modules folder.)
-
-3. Initialize the Database:
-   npm run db:push
-
-   (This creates the SQLite database and all necessary tables inside the local CyberVault_Data folder.)
-
-4. Run the application:
+3. Run the application:
+   ```bash
    npm run dev
+   ```
 
-5. Open Plethora:
-   Navigate to http://localhost:3001 in your browser.
+4. Open Plethora:
+   Navigate to `http://localhost:3000` in your browser.
 
 ## First Setup
-1. Open Plethora in your browser (`http://localhost:3001`) and click **Connect Hack The Box**.
+1. Open Plethora in your browser and click **Connect Hack The Box**.
 2. To get your App Token, navigate to the [Hack The Box Dashboard](https://app.hackthebox.com/).
 3. Click on **HTB Labs** and select **Start Playing**.
 4. Once you reach the labs website, navigate to your **Profile Settings**.
 5. Go to the **App Tokens** section and generate a new token.
-6. Copy the generated token, paste it into Plethora, and click connect! Plethora will securely save this to your local database and begin importing your progress.
+6. Copy the generated token, paste it into Plethora, and click connect! Plethora will securely save this to your local browser database and begin importing your progress.
 
 ## Architecture & Security
-Plethora uses a local SQLite database (vault.db) stored inside the CyberVault_Data/ directory. This directory is strictly ignored in .gitignore, ensuring your private notes, screenshots, and HTB App Tokens are never accidentally pushed to a remote repository.
+Plethora uses a pure client-side architecture powered by **Next.js** and **IndexedDB** (via Dexie.js). 
+Because there is no backend database, all of your notes, screenshots, and your sensitive HTB App Token are siloed securely within your own browser storage. You can safely deploy this application to Vercel (or any edge provider) for free, knowing that your data remains 100% private to your device.
