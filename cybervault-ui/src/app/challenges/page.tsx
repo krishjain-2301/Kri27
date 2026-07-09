@@ -1,16 +1,22 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import { Swords, Target } from 'lucide-react';
-import { getChallenges } from '@/lib/queries/challenges';
+import { getChallenges } from '@/lib/db/queries';
 import EngagementsGrid from './EngagementsGrid';
 
-export const dynamic = 'force-dynamic';
+export default function ChallengesPage() {
+  const [targets, setTargets] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export default async function ChallengesPage() {
-  const targets = await getChallenges();
+  useEffect(() => {
+    getChallenges().then(setTargets).finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <div className="p-8 text-gray-500">Loading engagements...</div>;
 
   return (
     <div className="max-w-7xl mx-auto pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      
       <div className="flex items-end justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
@@ -24,11 +30,9 @@ export default async function ChallengesPage() {
         <div className="text-center text-gray-500 mt-20">
           <Target className="w-12 h-12 mx-auto mb-4 opacity-50" />
           <p className="mb-6">No engagements yet. Complete your first HTB engagement or sync your account.</p>
-          <form action="/settings">
-            <button className="stakent-btn-primary mx-auto !py-3 !px-6 text-white border border-[#1a1a20] hover:bg-[#1a1a20]">
-              Sync Now
-            </button>
-          </form>
+          <a href="/settings" className="stakent-btn-primary mx-auto !py-3 !px-6 inline-flex">
+            Connect HTB
+          </a>
         </div>
       ) : (
         <EngagementsGrid initialTargets={targets} />

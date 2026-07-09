@@ -7,7 +7,7 @@ import {
   ChevronRight, Filter, SlidersHorizontal, Plus, Shield, Trash2
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import type { JournalHubEntry } from '@/lib/queries/journals';
+import type { JournalHubEntry } from '@/lib/db/queries';
 
 // ── helpers ────────────────────────────────────────────────────────────────
 
@@ -312,8 +312,8 @@ export default function JournalHubClient({ journals }: { journals: JournalHubEnt
 
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this journal? This cannot be undone.')) {
-      const { deleteJournalAction } = await import('@/actions/journal');
-      await deleteJournalAction(id);
+      const { deleteJournal } = await import('@/lib/db/queries');
+      await deleteJournal(id);
       window.location.reload();
     }
   };
@@ -339,9 +339,9 @@ export default function JournalHubClient({ journals }: { journals: JournalHubEnt
         {isDailyNotesPage && (
           <button
             onClick={() => {
-              fetch('/api/daily', { method: 'POST' })
-                .then((r) => r.json())
-                .then((d) => (window.location.href = `/journal/${d.id}`));
+              import('@/lib/db/queries').then(({ createDailyNote }) =>
+                createDailyNote().then(id => (window.location.href = `/journal/${id}`))
+              );
             }}
             className="px-4 py-2 bg-[#0c0c0e] border border-[#1a1a20] hover:bg-white/5 hover:border-white/10 active:scale-95 transition-all cursor-pointer flex items-center gap-2 font-bold rounded-xl text-white"
           >

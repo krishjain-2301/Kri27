@@ -24,16 +24,12 @@ export default function CyberEditor({ journalId, initialContentJson, snapshotToR
   const editor = useCreateBlockNote({
     initialContent: initialContentJson ? JSON.parse(initialContentJson) : undefined,
     uploadFile: async (file: File) => {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('journalId', journalId);
-      
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData
+      return new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
       });
-      const data = await res.json();
-      return data.url;
     }
   });
 

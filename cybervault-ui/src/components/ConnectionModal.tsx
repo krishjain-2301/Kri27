@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Target, CheckCircle, Shield, Key, User, Play, AlertCircle, RefreshCw } from 'lucide-react';
-import { saveConnectionSettings } from '@/actions/onboarding';
-import { runSyncPreview, runSyncCommit } from '@/actions/sync';
+import { saveConnectionSettings, generateSyncPreview, commitSync } from '@/lib/db/queries';
+import { HTBBrowserClient } from '@/lib/providers/htb/browser-client';
 
 export default function ConnectionModal({ isOpen, onClose, onComplete }: { isOpen: boolean, onClose: () => void, onComplete: () => void }) {
   const [username, setUsername] = useState('');
@@ -32,17 +32,21 @@ export default function ConnectionModal({ isOpen, onClose, onComplete }: { isOpe
     setErrorMsg('');
 
     try {
-      // 1. Save settings
+      // 1. Save settings to IndexedDB
       await saveConnectionSettings(username, token);
       
-      // 2. Fetch Preview
       const updateStep = (index: number) => {
         setSyncSteps(prev => prev.map((s, i) => i <= index ? { ...s, done: true } : s));
       };
       updateStep(0);
       
-      const preview = await runSyncPreview();
+      // 2. Fetch remote items via browser client (through our CORS proxy)
+      const client = new HTBBrowserClient(token);
+      const remoteItems = await client.fetchLearningState();
       updateStep(4);
+      
+      // 3. Generate preview
+      const preview = await generateSyncPreview(remoteItems);
       setPreviewData(preview);
       
       setTimeout(() => {
@@ -58,11 +62,11 @@ export default function ConnectionModal({ isOpen, onClose, onComplete }: { isOpe
 
   const handleCommit = async () => {
     setStep('syncing');
-    setSyncSteps(prev => prev.map(s => ({ ...s, done: true }))); // fast forward visual loading
+    setSyncSteps(prev => prev.map(s => ({ ...s, done: true })));
 
     try {
-      const result = await runSyncCommit(previewData);
-      if (!result.success) throw new Error(result.error);
+      const result = await commitSync(previewData);
+      if (!result.success) throw new Error((result as any).error);
       
       setSyncResults(result);
       setStep('success');

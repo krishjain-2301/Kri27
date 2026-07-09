@@ -1,11 +1,18 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import { BookOpen, CheckCircle } from 'lucide-react';
-import { getLearningModules } from '@/lib/queries/learning';
+import { getLearningModules } from '@/lib/db/queries';
 
-export const dynamic = 'force-dynamic';
+export default function LearningPage() {
+  const [modules, setModules] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export default async function LearningPage() {
-  const modules = await getLearningModules();
+  useEffect(() => {
+    getLearningModules().then(setModules).finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <div className="p-8 text-gray-500">Loading modules...</div>;
 
   return (
     <div className="max-w-7xl mx-auto pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -22,11 +29,9 @@ export default async function LearningPage() {
         <div className="text-center text-gray-500 mt-20">
           <BookOpen className="w-12 h-12 mx-auto mb-4 opacity-50" />
           <p className="mb-6">No Academy modules found. Once you complete a module it will appear here.</p>
-          <form action="/settings">
-            <button className="stakent-btn-primary mx-auto !py-3 !px-6 text-white border border-[#1a1a20] hover:bg-[#1a1a20]">
-              Sync
-            </button>
-          </form>
+          <a href="/settings" className="stakent-btn-primary mx-auto !py-3 !px-6 inline-flex">
+            Sync
+          </a>
         </div>
       )}
 
@@ -39,7 +44,6 @@ export default async function LearningPage() {
               }`}>
                 {m.status === 'Completed' ? <CheckCircle className="w-6 h-6 text-green-400" /> : <BookOpen className="w-6 h-6 text-blue-400" />}
               </div>
-              
               <div>
                 <h3 className="font-bold text-lg mb-1">{m.title}</h3>
                 <div className="flex items-center gap-3 text-xs text-gray-500">
@@ -57,7 +61,6 @@ export default async function LearningPage() {
                 </p>
                 <p className="text-xs text-gray-500 mt-1">Points: {m.points}</p>
               </div>
-              
               {m.journalId && (
                 <a href={`/journal/${m.journalId}`} className="stakent-btn-primary !py-2.5">
                   {m.journalStatus === 'Not Started' ? 'Start Notes →' : 'View Notes →'}

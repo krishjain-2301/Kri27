@@ -16,6 +16,7 @@
     "better-sqlite3": "^12.11.1",
     "cmdk": "^1.1.1",
     "date-fns": "^4.4.0",
+    "dexie": "^4.4.4",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "es-toolkit": "^1.48.1",

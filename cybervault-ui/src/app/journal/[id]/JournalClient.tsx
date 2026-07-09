@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { ShieldCheck, Target, Clock, Calendar, Hash, Image as ImageIcon, Terminal, BookOpen, Save, Star, AlertTriangle, Heart, History, Download, Copy, RefreshCcw, Search } from 'lucide-react';
-import { autoSaveJournal, updatePersonalMetadata, fetchJournalHistory } from '@/actions/journal';
+import { saveJournalEntryWithWordCount, updatePersonalMetadata, getJournalHistory, createJournalHistorySnapshot as _createJournalHistorySnapshot } from '@/lib/db/queries';
 import { formatDistanceToNow } from 'date-fns';
 
 // Dynamically import the editor since it relies on browser APIs and can't be SSR'd
@@ -43,12 +43,12 @@ export default function JournalClient({ initialData, machineTemplate }: any) {
   const [showHistory, setShowHistory] = useState(false);
 
   React.useEffect(() => {
-    fetchJournalHistory(initialData.journal.id).then(setHistoryItems);
+    getJournalHistory(initialData.journal.id).then(setHistoryItems);
   }, [initialData.journal.id]);
 
   const handleAutoSave = async (contentJson: string, contentMarkdown: string, wordCount: number) => {
     try {
-      const res = await autoSaveJournal(initialData.journal.id, contentJson, contentMarkdown, wordCount);
+      const res = await saveJournalEntryWithWordCount(initialData.journal.id, contentJson, contentMarkdown, wordCount);
       if (res.success) {
         setSaveStatus(`Saved just now`);
         setTimeout(() => setSaveStatus(''), 3000);
@@ -60,13 +60,12 @@ export default function JournalClient({ initialData, machineTemplate }: any) {
 
   const handleSnapshot = async (contentJson: string, contentMarkdown: string) => {
     try {
-      const { createJournalHistorySnapshot } = await import('@/actions/journal');
-      await createJournalHistorySnapshot(initialData.journal.id, contentJson, contentMarkdown);
+      await _createJournalHistorySnapshot(initialData.journal.id, contentJson, contentMarkdown);
       setSaveStatus('Snapshot saved');
       setTimeout(() => setSaveStatus(''), 3000);
       
       // Refresh history list
-      fetchJournalHistory(initialData.journal.id).then(setHistoryItems);
+      getJournalHistory(initialData.journal.id).then(setHistoryItems);
     } catch (e) {
       console.error('Failed to create snapshot', e);
     }
