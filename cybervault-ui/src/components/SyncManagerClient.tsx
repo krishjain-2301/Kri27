@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { getSettings, generateSyncPreview, commitSync } from '@/lib/db/queries';
 import { HTBBrowserClient } from '@/lib/providers/htb/browser-client';
@@ -18,8 +18,12 @@ export default function SyncManagerClient({
 }) {
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncText, setSyncText] = useState(initialSyncText);
+  
+  useEffect(() => {
+    setSyncText(initialSyncText);
+  }, [initialSyncText]);
 
-  const handleSync = async () => {
+  const handleSync = async (isManual = false) => {
     if (isSyncing) return;
     setIsSyncing(true);
     try {
@@ -32,14 +36,23 @@ export default function SyncManagerClient({
       await commitSync(preview);
 
       setSyncText('Synced just now');
-      window.location.reload();
+      if (isManual) {
+        window.location.reload();
+      }
     } catch (e: any) {
       console.error(e);
-      alert(`Sync failed: ${e.message}`);
+      if (isManual) {
+        alert(`Sync failed: ${e.message}`);
+      }
     } finally {
       setIsSyncing(false);
     }
   };
+
+  const handleSyncRef = useRef(handleSync);
+  useEffect(() => {
+    handleSyncRef.current = handleSync;
+  }, [handleSync]);
 
   useEffect(() => {
     if (!autoSync || syncIntervalStr === 'Manual') return;
@@ -48,11 +61,13 @@ export default function SyncManagerClient({
     if (syncIntervalStr === '30 min') intervalMs = 30 * 60 * 1000;
     if (syncIntervalStr === '1 hour') intervalMs = 60 * 60 * 1000;
 
-    if (lastSyncTimestamp && Date.now() - lastSyncTimestamp > intervalMs) {
-      handleSync();
+    const timeSinceLastSync = lastSyncTimestamp ? Date.now() - lastSyncTimestamp : Infinity;
+    
+    if (timeSinceLastSync > intervalMs) {
+      handleSyncRef.current(false);
     }
 
-    const timer = setInterval(handleSync, intervalMs);
+    const timer = setInterval(() => handleSyncRef.current(false), intervalMs);
     return () => clearInterval(timer);
   }, [autoSync, syncIntervalStr, lastSyncTimestamp]);
 
@@ -60,7 +75,7 @@ export default function SyncManagerClient({
     <div className="flex items-center gap-2">
       <span className="text-gray-500">{syncText}</span>
       <button
-        onClick={handleSync}
+        onClick={() => handleSync(true)}
         disabled={isSyncing}
         className={`p-1.5 hover:bg-white/10 rounded-md transition text-gray-400 hover:text-white disabled:opacity-50 ${isSyncing ? 'animate-spin text-purple-400' : ''}`}
         title="Sync Now"
