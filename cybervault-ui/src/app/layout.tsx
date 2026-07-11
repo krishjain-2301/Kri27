@@ -27,15 +27,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Google AdSense — replace ca-pub-XXXXXXXXXXXXXXXX with your Publisher ID */}
-        {process.env.NEXT_PUBLIC_ADSENSE_ID && (
-          <Script
-            async
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_ID}`}
-            crossOrigin="anonymous"
-            strategy="afterInteractive"
-          />
-        )}
+        {/* Google AdSense */}
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2488921740038119"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
       </head>
       <body className={`${inter.className} bg-[#050507] text-white overflow-hidden`}>
         <div className="flex h-screen w-full">

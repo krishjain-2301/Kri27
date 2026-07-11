@@ -14,7 +14,7 @@ interface AdBannerProps {
  * The adsbygoogle.js script is loaded in layout.tsx.
  */
 export default function AdBanner({ slot, format = 'auto', className = '' }: AdBannerProps) {
-  const publisherId = process.env.NEXT_PUBLIC_ADSENSE_ID;
+  const publisherId = process.env.NEXT_PUBLIC_ADSENSE_ID || 'ca-pub-2488921740038119';
 
   useEffect(() => {
     try {
