@@ -5,7 +5,7 @@ import { Settings } from "lucide-react";
 import SidebarNav from "@/components/SidebarNav";
 import { CommandPalette } from "@/components/CommandPalette";
 import NavHeader from "@/components/NavHeader";
-import Script from "next/script";
+
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,12 +28,11 @@ export default function RootLayout({
     <html lang="en">
       <head>
         {/* Google AdSense */}
-        <Script
+        <script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2488921740038119"
           crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
+        ></script>
       </head>
       <body className={`${inter.className} bg-[#050507] text-white overflow-hidden`}>
         <div className="flex h-screen w-full">
