@@ -42,6 +42,27 @@ export async function saveCredentials(username: string, appToken: string) {
   return saveConnectionSettings(username, appToken);
 }
 
+export async function saveTHMCredentials(username: string) {
+  const db = getDb();
+  const existing = await db.settings.toArray();
+  const now = new Date();
+  if (existing.length === 0) {
+    await db.settings.add({
+      id: 'default',
+      thmUsername: username,
+      autoSync: true,
+      syncInterval: '15 min',
+      createdAt: now,
+      updatedAt: now,
+    });
+  } else {
+    await db.settings.update(existing[0].id, {
+      thmUsername: username,
+      updatedAt: now,
+    });
+  }
+}
+
 export async function disconnectCredentials() {
   const db = getDb();
   const existing = await db.settings.toArray();
@@ -49,6 +70,17 @@ export async function disconnectCredentials() {
     await db.settings.update(existing[0].id, {
       htbUsername: null,
       htbAppToken: null,
+      updatedAt: new Date(),
+    });
+  }
+}
+
+export async function disconnectTHMCredentials() {
+  const db = getDb();
+  const existing = await db.settings.toArray();
+  if (existing.length > 0) {
+    await db.settings.update(existing[0].id, {
+      thmUsername: null,
       updatedAt: new Date(),
     });
   }
@@ -65,17 +97,52 @@ export async function updateSyncPreferences(autoSync: boolean, syncInterval: str
   }
 }
 
+export async function cleanupDuplicateItems() {
+  const db = getDb();
+  const allItems = await db.htbItems.toArray();
+  const seen = new Map<string, HtbItem>();
+  const duplicatesToDelete: string[] = [];
+
+  for (const item of allItems) {
+    const key = item.htbId || `${item.provider || 'HTB'}-${item.title.trim().toLowerCase()}`;
+    if (seen.has(key)) {
+      duplicatesToDelete.push(item.id);
+    } else {
+      seen.set(key, item);
+    }
+  }
+
+  if (duplicatesToDelete.length > 0) {
+    for (const id of duplicatesToDelete) {
+      await db.htbItems.delete(id);
+      const journals = await db.journal.where('itemId').equals(id).toArray();
+      for (const j of journals) {
+        if (!j.contentMarkdown && !j.content) {
+          await db.journal.delete(j.id);
+        }
+      }
+    }
+  }
+}
+
 // ── Dashboard Queries ─────────────────────────────────────────────────────────
 
 export async function getDashboardStats() {
   const db = getDb();
+  await cleanupDuplicateItems();
   const allItems = await db.htbItems.toArray();
+  const uniqueMap = new Map<string, HtbItem>();
+  for (const i of allItems) {
+    const key = i.htbId || `${i.provider || 'HTB'}-${i.title.trim().toLowerCase()}`;
+    if (!uniqueMap.has(key)) uniqueMap.set(key, i);
+  }
+  const items = Array.from(uniqueMap.values());
   return {
-    machines: allItems.filter(i => i.type === 'Machine').length,
-    academyModules: allItems.filter(i => i.type === 'Academy').length,
-    challenges: allItems.filter(i => i.type === 'Challenge').length,
-    sherlocks: allItems.filter(i => i.type === 'Sherlock').length,
-    totalSessions: allItems.length,
+    machines: items.filter(i => i.type === 'Machine').length,
+    academyModules: items.filter(i => i.type === 'Academy').length,
+    challenges: items.filter(i => i.type === 'Challenge').length,
+    sherlocks: items.filter(i => i.type === 'Sherlock').length,
+    totalSessions: items.length,
   };
 }
 
@@ -108,11 +175,22 @@ export async function getTodaysRecommendation() {
 
 export async function getRecentActivity() {
   const db = getDb();
-  const items = await db.htbItems.orderBy('updatedAt').reverse().limit(3).toArray();
-  const results = [];
+  await cleanupDuplicateItems();
+  const items = await db.htbItems.orderBy('updatedAt').reverse().toArray();
+  const uniqueMap = new Map<string, HtbItem>();
   for (const item of items) {
+    const key = item.htbId || `${item.provider || 'HTB'}-${item.title.trim().toLowerCase()}`;
+    if (!uniqueMap.has(key)) uniqueMap.set(key, item);
+  }
+  const uniqueItems = Array.from(uniqueMap.values()).slice(0, 3);
+  const results = [];
+  for (const item of uniqueItems) {
     const j = await db.journal.where('itemId').equals(item.id).first();
-    results.push({ ...item, journalId: j?.id });
+    results.push({
+      ...item,
+      provider: item.provider || (item.htbId?.startsWith('thm_') ? 'THM' : 'HTB'),
+      journalId: j?.id,
+    });
   }
   return results;
 }
@@ -165,19 +243,29 @@ export type JournalHubEntry = {
   itemType: string | null;
   itemDifficulty: string | null;
   itemStatus: string | null;
+  provider: string | null;
   screenshotCount: number;
 };
 
 export async function getAllJournals(): Promise<JournalHubEntry[]> {
   const db = getDb();
+  await cleanupDuplicateItems();
   const journals = await db.journal.orderBy('updatedAt').reverse().toArray();
 
   const results: JournalHubEntry[] = [];
+  const seenJournalTitles = new Set<string>();
+
   for (const j of journals) {
     let item: HtbItem | undefined;
     if (j.itemId) {
       item = await db.htbItems.get(j.itemId);
     }
+
+    const providerName = item?.provider ?? (item?.htbId?.startsWith('thm_') ? 'THM' : item?.htbId ? 'HTB' : null);
+    const dedupKey = `${providerName || 'General'}-${j.title.trim().toLowerCase()}`;
+    if (seenJournalTitles.has(dedupKey)) continue;
+    seenJournalTitles.add(dedupKey);
+
     const screenshotCount = await db.screenshots.where('journalId').equals(j.id).count();
     results.push({
       id: j.id,
@@ -194,6 +282,7 @@ export async function getAllJournals(): Promise<JournalHubEntry[]> {
       itemType: item?.type ?? null,
       itemDifficulty: item?.difficulty ?? null,
       itemStatus: item?.status ?? null,
+      provider: providerName,
       screenshotCount,
     });
   }
@@ -325,17 +414,26 @@ export async function createDailyNote(): Promise<string> {
 
 export async function getChallenges() {
   const db = getDb();
+  await cleanupDuplicateItems();
   const items = await db.htbItems
     .where('type').anyOf(['Machine', 'Challenge', 'Sherlock'])
     .toArray();
 
-  items.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+  const uniqueMap = new Map<string, HtbItem>();
+  for (const item of items) {
+    const key = item.htbId || `${item.provider || 'HTB'}-${item.title.trim().toLowerCase()}`;
+    if (!uniqueMap.has(key)) uniqueMap.set(key, item);
+  }
+
+  const uniqueItems = Array.from(uniqueMap.values());
+  uniqueItems.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
 
   const results = [];
-  for (const item of items) {
+  for (const item of uniqueItems) {
     const j = await db.journal.where('itemId').equals(item.id).first();
     results.push({
       ...item,
+      provider: item.provider || (item.htbId?.startsWith('thm_') ? 'THM' : 'HTB'),
       journalId: j?.id,
       journalStatus: j?.journalStatus || 'Not Started',
     });
@@ -347,14 +445,24 @@ export async function getChallenges() {
 
 export async function getLearningModules() {
   const db = getDb();
+  await cleanupDuplicateItems();
   const items = await db.htbItems.where('type').equals('Academy').toArray();
-  items.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+
+  const uniqueMap = new Map<string, HtbItem>();
+  for (const item of items) {
+    const key = item.htbId || `${item.provider || 'HTB'}-${item.title.trim().toLowerCase()}`;
+    if (!uniqueMap.has(key)) uniqueMap.set(key, item);
+  }
+
+  const uniqueItems = Array.from(uniqueMap.values());
+  uniqueItems.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
 
   const results = [];
-  for (const item of items) {
+  for (const item of uniqueItems) {
     const j = await db.journal.where('itemId').equals(item.id).first();
     results.push({
       ...item,
+      provider: item.provider || (item.htbId?.startsWith('thm_') ? 'THM' : 'HTB'),
       journalId: j?.id,
       journalStatus: j?.journalStatus || 'Not Started',
     });
@@ -481,6 +589,7 @@ export interface CyberVaultItem {
   status: string;
   os?: string | null;
   points?: number;
+  provider?: 'HTB' | 'THM';
 }
 
 export interface SyncPreview {
@@ -490,11 +599,23 @@ export interface SyncPreview {
 
 export async function generateSyncPreview(remoteItems: CyberVaultItem[]): Promise<SyncPreview> {
   const db = getDb();
+  await cleanupDuplicateItems();
   const localItems = await db.htbItems.toArray();
   const preview: SyncPreview = { newItems: [], updatedItems: [] };
 
-  for (const remote of remoteItems) {
-    const local = localItems.find(l => l.htbId === remote.providerId);
+  const uniqueRemoteMap = new Map<string, CyberVaultItem>();
+  for (const item of remoteItems) {
+    const key = item.providerId || `${item.provider || 'HTB'}-${item.name.trim().toLowerCase()}`;
+    if (!uniqueRemoteMap.has(key)) uniqueRemoteMap.set(key, item);
+  }
+  const uniqueRemoteItems = Array.from(uniqueRemoteMap.values());
+
+  for (const remote of uniqueRemoteItems) {
+    const remoteProv = remote.provider || (remote.providerId.startsWith('thm_') ? 'THM' : 'HTB');
+    const local = localItems.find(l =>
+      l.htbId === remote.providerId ||
+      ((l.provider || (l.htbId?.startsWith('thm_') ? 'THM' : 'HTB')) === remoteProv && l.title.trim().toLowerCase() === remote.name.trim().toLowerCase())
+    );
     if (!local) {
       preview.newItems.push(remote);
     } else if (local.status !== remote.status || local.difficulty !== remote.difficulty) {
@@ -514,6 +635,7 @@ export async function commitSync(preview: SyncPreview) {
     for (const item of preview.newItems) {
       const itemId = randomUUID();
       const now = new Date();
+      const itemProvider = item.provider || (item.providerId.startsWith('thm_') ? 'THM' : 'HTB');
       await db.htbItems.add({
         id: itemId,
         htbId: item.providerId,
@@ -521,6 +643,7 @@ export async function commitSync(preview: SyncPreview) {
         type: item.type,
         difficulty: item.difficulty,
         status: item.status,
+        provider: itemProvider,
         createdAt: now,
         updatedAt: now,
       });

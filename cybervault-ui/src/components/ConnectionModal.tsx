@@ -1,25 +1,35 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Target, CheckCircle, Shield, Key, User, Play, AlertCircle, RefreshCw } from 'lucide-react';
-import { saveConnectionSettings, generateSyncPreview, commitSync } from '@/lib/db/queries';
+import { Target, CheckCircle, Key, User, AlertCircle, RefreshCw, Layers } from 'lucide-react';
+import { saveConnectionSettings, saveTHMCredentials, generateSyncPreview, commitSync } from '@/lib/db/queries';
 import { HTBBrowserClient } from '@/lib/providers/htb/browser-client';
+import { THMBrowserClient } from '@/lib/providers/thm/browser-client';
 
-export default function ConnectionModal({ isOpen, onClose, onComplete }: { isOpen: boolean, onClose: () => void, onComplete: () => void }) {
+export default function ConnectionModal({
+  isOpen,
+  onClose,
+  onComplete,
+  initialProvider = 'HTB',
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onComplete: () => void;
+  initialProvider?: 'HTB' | 'THM';
+}) {
+  const [provider, setProvider] = useState<'HTB' | 'THM'>(initialProvider);
   const [username, setUsername] = useState('');
   const [token, setToken] = useState('');
+  const [thmUsername, setThmUsername] = useState('');
   const [step, setStep] = useState<'form' | 'syncing' | 'preview' | 'success' | 'error'>('form');
   const [errorMsg, setErrorMsg] = useState('');
   const [previewData, setPreviewData] = useState<any>(null);
-  
-  // Sync state
+
   const [syncSteps, setSyncSteps] = useState([
     { label: 'Connected', done: false },
     { label: 'Fetching profile...', done: false },
-    { label: 'Fetching machines...', done: false },
-    { label: 'Fetching challenges...', done: false },
-    { label: 'Fetching academy...', done: false },
+    { label: 'Fetching rooms & items...', done: false },
     { label: 'Comparing local database...', done: false },
     { label: 'Creating journals...', done: false },
     { label: 'Done!', done: false }
@@ -27,28 +37,44 @@ export default function ConnectionModal({ isOpen, onClose, onComplete }: { isOpe
   const [syncResults, setSyncResults] = useState<any>(null);
 
   const handleConnect = async () => {
-    if (!username || !token) return;
+    if (provider === 'HTB' && (!username || !token)) return;
+    if (provider === 'THM' && !thmUsername) return;
+
     setStep('syncing');
     setErrorMsg('');
 
     try {
-      // 1. Save settings to IndexedDB
-      await saveConnectionSettings(username, token);
-      
+      let remoteItems: any[] = [];
+
       const updateStep = (index: number) => {
         setSyncSteps(prev => prev.map((s, i) => i <= index ? { ...s, done: true } : s));
       };
-      updateStep(0);
-      
-      // 2. Fetch remote items via browser client (through our CORS proxy)
-      const client = new HTBBrowserClient(token);
-      const remoteItems = await client.fetchLearningState();
-      updateStep(4);
-      
-      // 3. Generate preview
+
+      if (provider === 'HTB') {
+        await saveConnectionSettings(username, token);
+        updateStep(0);
+
+        const client = new HTBBrowserClient(token);
+        remoteItems = await client.fetchLearningState();
+        updateStep(2);
+      } else {
+        await saveTHMCredentials(thmUsername);
+        updateStep(0);
+
+        const client = new THMBrowserClient();
+        const validation = await client.validateConnection(thmUsername);
+        if (!validation.ok) {
+          throw new Error(validation.reason === 'UserNotFound' ? 'TryHackMe user not found.' : 'Failed to connect to TryHackMe.');
+        }
+        updateStep(1);
+
+        remoteItems = await client.fetchLearningState(thmUsername);
+        updateStep(2);
+      }
+
       const preview = await generateSyncPreview(remoteItems);
       setPreviewData(preview);
-      
+
       setTimeout(() => {
         setStep('preview');
       }, 500);
@@ -67,7 +93,7 @@ export default function ConnectionModal({ isOpen, onClose, onComplete }: { isOpe
     try {
       const result = await commitSync(previewData);
       if (!result.success) throw new Error((result as any).error);
-      
+
       setSyncResults(result);
       setStep('success');
     } catch (err: any) {
@@ -81,7 +107,7 @@ export default function ConnectionModal({ isOpen, onClose, onComplete }: { isOpe
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95 }}
@@ -89,64 +115,131 @@ export default function ConnectionModal({ isOpen, onClose, onComplete }: { isOpe
         >
           {step === 'form' && (
             <>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center">
-                  <Target className="w-6 h-6 text-green-400" />
-                </div>
-                <div>
-                  <h2 className="text-xl font-bold">Connect Hack The Box</h2>
-                  <p className="text-sm text-gray-500">Sync your profile securely.</p>
-                </div>
-              </div>
-
-              <div className="mb-6 p-4 rounded-xl bg-purple-500/10 border border-purple-500/20 text-sm text-purple-200">
-                <p className="font-bold mb-2 text-purple-300">How to get your App Token:</p>
-                <ol className="list-decimal pl-5 space-y-1 text-purple-200/80">
-                  <li>Navigate to the Hack The Box Dashboard.</li>
-                  <li>Click on HTB Labs and select <strong>Start Playing</strong>.</li>
-                  <li>Once you reach the labs website, navigate to your <strong>Profile Settings</strong>.</li>
-                  <li>Go to the <strong>App Tokens</strong> section and generate a new token.</li>
-                  <li>Copy the generated token, paste it below, and click connect!</li>
-                </ol>
-                <p className="mt-3 text-xs opacity-75">Plethora will securely save this to your local database and begin importing your progress.</p>
-              </div>
-
-              <div className="space-y-4 mb-8">
-                <div>
-                  <label className="text-xs uppercase tracking-wider font-bold text-gray-500 mb-1 block">Username</label>
-                  <div className="relative">
-                    <User className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
-                    <input 
-                      type="text" 
-                      value={username}
-                      onChange={e => setUsername(e.target.value)}
-                      placeholder="e.g. rakazaka"
-                      className="w-full bg-[#0c0c0e] border border-[#1a1a20] rounded-xl py-2 pl-10 pr-4 text-white focus:outline-none focus:border-green-500/50 transition"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-xs uppercase tracking-wider font-bold text-gray-500 mb-1 block">App Token</label>
-                  <div className="relative">
-                    <Key className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
-                    <input 
-                      type="password" 
-                      value={token}
-                      onChange={e => setToken(e.target.value)}
-                      placeholder="eyJhb..."
-                      className="w-full bg-[#0c0c0e] border border-[#1a1a20] rounded-xl py-2 pl-10 pr-4 text-white focus:outline-none focus:border-green-500/50 transition"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <button onClick={onClose} className="stakent-pill flex-1 py-3 justify-center border border-[#1a1a20] hover:bg-[#1a1a20]">Cancel</button>
-                <button onClick={handleConnect} disabled={!username || !token} className="stakent-btn-primary flex-1 py-3 justify-center !bg-green-500 disabled:opacity-50 disabled:cursor-not-allowed">
-                  Connect
+              {/* Provider Selection Tabs */}
+              <div className="flex bg-[#0c0c0e] p-1 rounded-xl border border-[#1a1a20] mb-6">
+                <button
+                  onClick={() => setProvider('HTB')}
+                  className={`flex-1 py-2 px-3 rounded-lg font-bold text-xs flex items-center justify-center gap-2 transition ${
+                    provider === 'HTB'
+                      ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  <Target className="w-4 h-4 text-green-400" /> Hack The Box
+                </button>
+                <button
+                  onClick={() => setProvider('THM')}
+                  className={`flex-1 py-2 px-3 rounded-lg font-bold text-xs flex items-center justify-center gap-2 transition ${
+                    provider === 'THM'
+                      ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  <Layers className="w-4 h-4 text-red-400" /> TryHackMe
                 </button>
               </div>
+
+              {provider === 'HTB' ? (
+                <>
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-12 h-12 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center">
+                      <Target className="w-6 h-6 text-green-400" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold">Connect Hack The Box</h2>
+                      <p className="text-sm text-gray-500">Sync your profile & machines securely.</p>
+                    </div>
+                  </div>
+
+                  <div className="mb-6 p-4 rounded-xl bg-purple-500/10 border border-purple-500/20 text-sm text-purple-200">
+                    <p className="font-bold mb-2 text-purple-300">How to get your App Token:</p>
+                    <ol className="list-decimal pl-5 space-y-1 text-purple-200/80 text-xs">
+                      <li>Navigate to the Hack The Box Dashboard.</li>
+                      <li>Go to <strong>Profile Settings</strong> &gt; <strong>App Tokens</strong>.</li>
+                      <li>Generate a new token, copy & paste below.</li>
+                    </ol>
+                  </div>
+
+                  <div className="space-y-4 mb-8">
+                    <div>
+                      <label className="text-xs uppercase tracking-wider font-bold text-gray-500 mb-1 block">Username</label>
+                      <div className="relative">
+                        <User className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
+                        <input
+                          type="text"
+                          value={username}
+                          onChange={e => setUsername(e.target.value)}
+                          placeholder="e.g. rakazaka"
+                          className="w-full bg-[#0c0c0e] border border-[#1a1a20] rounded-xl py-2 pl-10 pr-4 text-white focus:outline-none focus:border-green-500/50 transition text-sm"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-xs uppercase tracking-wider font-bold text-gray-500 mb-1 block">App Token</label>
+                      <div className="relative">
+                        <Key className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
+                        <input
+                          type="password"
+                          value={token}
+                          onChange={e => setToken(e.target.value)}
+                          placeholder="eyJhb..."
+                          className="w-full bg-[#0c0c0e] border border-[#1a1a20] rounded-xl py-2 pl-10 pr-4 text-white focus:outline-none focus:border-green-500/50 transition text-sm"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4">
+                    <button onClick={onClose} className="stakent-pill flex-1 py-3 justify-center border border-[#1a1a20] hover:bg-[#1a1a20]">Cancel</button>
+                    <button onClick={handleConnect} disabled={!username || !token} className="stakent-btn-primary flex-1 py-3 justify-center !bg-green-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                      Connect HTB
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
+                      <Layers className="w-6 h-6 text-red-400" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold">Connect TryHackMe</h2>
+                      <p className="text-sm text-gray-500">Sync your completed THM rooms.</p>
+                    </div>
+                  </div>
+
+                  <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-200">
+                    <p className="font-bold mb-1 text-red-300">Public Profile Sync:</p>
+                    <p className="text-xs opacity-90 leading-relaxed">
+                      Simply enter your TryHackMe username below. CyberVault will fetch your completed rooms and create local journals automatically.
+                    </p>
+                  </div>
+
+                  <div className="space-y-4 mb-8">
+                    <div>
+                      <label className="text-xs uppercase tracking-wider font-bold text-gray-500 mb-1 block">THM Username</label>
+                      <div className="relative">
+                        <User className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
+                        <input
+                          type="text"
+                          value={thmUsername}
+                          onChange={e => setThmUsername(e.target.value)}
+                          placeholder="e.g. tryhackme_user"
+                          className="w-full bg-[#0c0c0e] border border-[#1a1a20] rounded-xl py-2 pl-10 pr-4 text-white focus:outline-none focus:border-red-500/50 transition text-sm"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4">
+                    <button onClick={onClose} className="stakent-pill flex-1 py-3 justify-center border border-[#1a1a20] hover:bg-[#1a1a20]">Cancel</button>
+                    <button onClick={handleConnect} disabled={!thmUsername} className="stakent-btn-primary flex-1 py-3 justify-center !bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                      Connect THM
+                    </button>
+                  </div>
+                </>
+              )}
             </>
           )}
 
@@ -154,16 +247,16 @@ export default function ConnectionModal({ isOpen, onClose, onComplete }: { isOpe
             <div className="py-4">
               <h2 className="text-xl font-bold mb-6 flex items-center gap-3">
                 <span className="relative flex h-4 w-4">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-4 w-4 bg-green-500"></span>
+                  <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${provider === 'THM' ? 'bg-red-400' : 'bg-green-400'}`}></span>
+                  <span className={`relative inline-flex rounded-full h-4 w-4 ${provider === 'THM' ? 'bg-red-500' : 'bg-green-500'}`}></span>
                 </span>
-                Connecting...
+                Connecting to {provider === 'THM' ? 'TryHackMe' : 'Hack The Box'}...
               </h2>
-              
+
               <div className="space-y-3 font-mono text-sm">
                 {syncSteps.map((s, idx) => (
                   <div key={idx} className={`flex items-center gap-3 transition duration-300 ${s.done ? 'text-white' : 'text-gray-600'}`}>
-                    {s.done ? <CheckCircle className="w-4 h-4 text-green-500" /> : <div className="w-4 h-4 rounded-full border-2 border-gray-700" />}
+                    {s.done ? <CheckCircle className={`w-4 h-4 ${provider === 'THM' ? 'text-red-500' : 'text-green-500'}`} /> : <div className="w-4 h-4 rounded-full border-2 border-gray-700" />}
                     {s.label}
                   </div>
                 ))}
@@ -183,9 +276,9 @@ export default function ConnectionModal({ isOpen, onClose, onComplete }: { isOpe
           {step === 'preview' && previewData && (
             <div className="py-2 animate-in zoom-in duration-300">
               <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
-                <RefreshCw className="w-5 h-5 text-blue-400" /> Sync Preview
+                <RefreshCw className="w-5 h-5 text-blue-400" /> Sync Preview ({provider})
               </h2>
-              <p className="text-sm text-gray-400 mb-6">Review the changes before importing to your local vault.</p>
+              <p className="text-sm text-gray-400 mb-6">Review the detected {provider} items before importing.</p>
 
               <div className="space-y-3 mb-6 bg-[#0c0c0e] border border-[#1a1a20] rounded-xl p-4">
                 <div className="flex justify-between items-center">
@@ -220,10 +313,10 @@ export default function ConnectionModal({ isOpen, onClose, onComplete }: { isOpe
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold">Sync Complete</h2>
-                  <p className="text-gray-400 text-sm">Successfully merged with local vault in {(syncResults?.durationMs/1000).toFixed(2)}s.</p>
+                  <p className="text-gray-400 text-sm">Successfully merged {provider} items with local vault in {(syncResults?.durationMs/1000).toFixed(2)}s.</p>
                 </div>
               </div>
-              
+
               <div className="mb-8 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
                 <h3 className="text-xs uppercase tracking-wider font-bold text-gray-500 mb-3">What's New</h3>
                 {previewData?.newItems.length === 0 && previewData?.updatedItems.length === 0 ? (
@@ -234,34 +327,23 @@ export default function ConnectionModal({ isOpen, onClose, onComplete }: { isOpe
                       <div key={`new-${i}`} className="flex items-center gap-3 text-sm p-2 rounded-lg hover:bg-white/5">
                         <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
                         <span className="text-gray-300 font-medium truncate">{item.name}</span>
-                        <span className="text-xs text-green-500/70 ml-auto flex-shrink-0">New {item.type}</span>
-                      </div>
-                    ))}
-                    {previewData?.updatedItems.map((item: any, i: number) => (
-                      <div key={`upd-${i}`} className="flex items-center gap-3 text-sm p-2 rounded-lg hover:bg-white/5">
-                        <RefreshCw className="w-4 h-4 text-purple-500 flex-shrink-0" />
-                        <span className="text-gray-300 font-medium truncate">{item.name}</span>
-                        <span className="text-xs text-purple-500/70 ml-auto flex-shrink-0">Updated Status</span>
+                        <span className="text-xs text-green-500/70 ml-auto flex-shrink-0">New {item.type} ({item.provider || provider})</span>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
 
-              <button 
+              <button
                 onClick={() => {
                   onClose();
                   onComplete();
-                }} 
+                }}
                 className="stakent-btn-primary w-full py-3 justify-center !bg-white !text-black hover:!bg-gray-200"
               >
                 Open Dashboard
               </button>
             </div>
-          )}
-          
-          {step === 'success' && (
-            <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-green-500/10 rounded-full blur-[80px] pointer-events-none"></div>
           )}
         </motion.div>
       </div>

@@ -36,8 +36,10 @@ export default function DashboardPage() {
           getActivityStats(),
         ]);
 
-        setIsConnected(!!settings?.htbAppToken);
-        setUsername(settings?.htbUsername || null);
+        const hasHTB = !!settings?.htbAppToken;
+        const hasTHM = !!settings?.thmUsername;
+        setIsConnected(hasHTB || hasTHM);
+        setUsername(settings?.htbUsername || settings?.thmUsername || null);
         setStats(s);
         setRecommendation(rec);
         setRecentActivity(activity);
@@ -93,22 +95,22 @@ export default function DashboardPage() {
       {!isConnected ? (
         <div className="mb-8 p-8 rounded-2xl border border-green-500/20 bg-green-500/5 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="flex-1">
-            <h2 className="text-3xl font-bold text-white mb-4">Connect to Hack The Box</h2>
+            <h2 className="text-3xl font-bold text-white mb-4">Connect Platforms</h2>
             <p className="text-gray-400 text-lg mb-6 max-w-2xl">
-              Once connected, we'll automatically import:
+              Connect Hack The Box or TryHackMe to automatically import:
             </p>
             <ul className="grid grid-cols-2 gap-4 mb-6 text-gray-300 font-medium">
-              <li className="flex items-center gap-2"><CheckCircle className="w-5 h-5 text-green-500" /> Machines</li>
-              <li className="flex items-center gap-2"><CheckCircle className="w-5 h-5 text-green-500" /> Challenges</li>
-              <li className="flex items-center gap-2"><CheckCircle className="w-5 h-5 text-green-500" /> Progress</li>
+              <li className="flex items-center gap-2"><CheckCircle className="w-5 h-5 text-green-500" /> HTB Machines & Challenges</li>
+              <li className="flex items-center gap-2"><CheckCircle className="w-5 h-5 text-red-500" /> THM Completed Rooms</li>
+              <li className="flex items-center gap-2"><CheckCircle className="w-5 h-5 text-purple-500" /> Progress & Streak Tracking</li>
             </ul>
             <p className="text-sm text-gray-500 max-w-xl">
-              Your API token stays in your browser and is never sent to our servers.
+              Your credentials are saved locally in your browser and are never sent to external servers.
             </p>
           </div>
           <div className="flex-shrink-0">
             <button onClick={() => setIsModalOpen(true)} className="stakent-btn-primary !py-4 !px-8 text-lg font-bold">
-              Connect Hack The Box
+              Connect Platforms
             </button>
           </div>
           <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-green-500/10 rounded-full blur-[100px] pointer-events-none" />

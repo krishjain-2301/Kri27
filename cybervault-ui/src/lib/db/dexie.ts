@@ -16,6 +16,7 @@ export interface HtbItem {
   lastSyncedAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
+  provider?: 'HTB' | 'THM' | null;
 }
 
 export interface Journal {
@@ -50,6 +51,7 @@ export interface Settings {
   id: string;
   htbAppToken?: string | null;
   htbUsername?: string | null;
+  thmUsername?: string | null;
   autoSync?: boolean | null;
   syncInterval?: string | null;
   createdAt: Date;

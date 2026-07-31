@@ -9,6 +9,7 @@ export interface CyberVaultItem {
   status: VaultItemStatus;
   os: string | null;
   points: number;
+  provider?: 'HTB' | 'THM';
 }
 
 export interface UserProfile {

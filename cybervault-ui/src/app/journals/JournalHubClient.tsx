@@ -98,6 +98,19 @@ function JournalRow({
         </div>
       </div>
 
+      {/* Provider badge */}
+      {entry.provider && (
+        <span
+          className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0 ${
+            entry.provider === 'THM'
+              ? 'text-red-400 bg-red-500/10 border-red-500/20'
+              : 'text-green-400 bg-green-500/10 border-green-500/20'
+          }`}
+        >
+          {entry.provider}
+        </span>
+      )}
+
       {/* Type badge */}
       <span
         className={`hidden sm:inline-flex text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0 ${getTypeBadgeColor(

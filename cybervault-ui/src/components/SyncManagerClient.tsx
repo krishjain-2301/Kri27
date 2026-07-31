@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { getSettings, generateSyncPreview, commitSync } from '@/lib/db/queries';
 import { HTBBrowserClient } from '@/lib/providers/htb/browser-client';
+import { THMBrowserClient } from '@/lib/providers/thm/browser-client';
 
 export default function SyncManagerClient({
   initialSyncText,
@@ -18,7 +19,7 @@ export default function SyncManagerClient({
 }) {
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncText, setSyncText] = useState(initialSyncText);
-  
+
   useEffect(() => {
     setSyncText(initialSyncText);
   }, [initialSyncText]);
@@ -28,11 +29,36 @@ export default function SyncManagerClient({
     setIsSyncing(true);
     try {
       const settings = await getSettings();
-      if (!settings?.htbAppToken) throw new Error('No API token configured.');
+      const hasHTB = !!settings?.htbAppToken;
+      const hasTHM = !!settings?.thmUsername;
 
-      const client = new HTBBrowserClient(settings.htbAppToken);
-      const remoteItems = await client.fetchLearningState();
-      const preview = await generateSyncPreview(remoteItems);
+      if (!hasHTB && !hasTHM) {
+        throw new Error('No platform connections configured.');
+      }
+
+      const allRemoteItems: any[] = [];
+
+      if (hasHTB && settings?.htbAppToken) {
+        try {
+          const htbClient = new HTBBrowserClient(settings.htbAppToken);
+          const htbItems = await htbClient.fetchLearningState();
+          allRemoteItems.push(...htbItems);
+        } catch (e) {
+          console.warn('HTB Sync failed:', e);
+        }
+      }
+
+      if (hasTHM && settings?.thmUsername) {
+        try {
+          const thmClient = new THMBrowserClient();
+          const thmItems = await thmClient.fetchLearningState(settings.thmUsername);
+          allRemoteItems.push(...thmItems);
+        } catch (e) {
+          console.warn('THM Sync failed:', e);
+        }
+      }
+
+      const preview = await generateSyncPreview(allRemoteItems);
       await commitSync(preview);
 
       setSyncText('Synced just now');
@@ -62,7 +88,7 @@ export default function SyncManagerClient({
     if (syncIntervalStr === '1 hour') intervalMs = 60 * 60 * 1000;
 
     const timeSinceLastSync = lastSyncTimestamp ? Date.now() - lastSyncTimestamp : Infinity;
-    
+
     if (timeSinceLastSync > intervalMs) {
       handleSyncRef.current(false);
     }

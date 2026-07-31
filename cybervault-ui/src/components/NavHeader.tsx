@@ -1,14 +1,17 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { User } from 'lucide-react';
+import { Target, Layers, User } from 'lucide-react';
 import { getSettings, getLatestSync } from '@/lib/db/queries';
 import { formatDistanceToNow } from 'date-fns';
 import SyncManagerClient from './SyncManagerClient';
 
 export default function NavHeader() {
-  const [isConnected, setIsConnected] = useState(false);
-  const [username, setUsername] = useState('');
+  const [htbConnected, setHtbConnected] = useState(false);
+  const [htbUsername, setHtbUsername] = useState('');
+  const [thmConnected, setThmConnected] = useState(false);
+  const [thmUsername, setThmUsername] = useState('');
+
   const [syncText, setSyncText] = useState('Never synced');
   const [autoSync, setAutoSync] = useState(false);
   const [syncIntervalStr, setSyncIntervalStr] = useState('Manual');
@@ -19,8 +22,14 @@ export default function NavHeader() {
       try {
         const settings = await getSettings();
         if (settings?.htbAppToken) {
-          setIsConnected(true);
-          setUsername(settings.htbUsername || '');
+          setHtbConnected(true);
+          setHtbUsername(settings.htbUsername || 'HTB User');
+        }
+        if (settings?.thmUsername) {
+          setThmConnected(true);
+          setThmUsername(settings.thmUsername);
+        }
+        if (settings) {
           setAutoSync(settings.autoSync ?? false);
           setSyncIntervalStr(settings.syncInterval || 'Manual');
         }
@@ -37,12 +46,25 @@ export default function NavHeader() {
     load();
   }, []);
 
+  const isAnyConnected = htbConnected || thmConnected;
+
   return (
     <header className="h-[80px] flex items-center justify-end px-8 border-b border-[#1a1a20]">
-      {isConnected ? (
+      {isAnyConnected ? (
         <div className="flex items-center gap-4 text-sm bg-[#0c0c0e] border border-[#1a1a20] px-4 py-2 rounded-xl">
-          <div className="flex items-center gap-2 text-white font-bold">
-            <User className="w-4 h-4 text-green-400" /> {username}
+          <div className="flex items-center gap-3">
+            {htbConnected && (
+              <div className="flex items-center gap-1.5 text-white font-bold text-xs bg-green-500/10 border border-green-500/20 px-2.5 py-1 rounded-lg">
+                <Target className="w-3.5 h-3.5 text-green-400" />
+                <span>{htbUsername}</span>
+              </div>
+            )}
+            {thmConnected && (
+              <div className="flex items-center gap-1.5 text-white font-bold text-xs bg-red-500/10 border border-red-500/20 px-2.5 py-1 rounded-lg">
+                <Layers className="w-3.5 h-3.5 text-red-400" />
+                <span>{thmUsername}</span>
+              </div>
+            )}
           </div>
           <div className="w-px h-4 bg-[#1a1a20]" />
           <SyncManagerClient
