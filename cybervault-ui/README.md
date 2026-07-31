@@ -1,7 +1,7 @@
 # 🛡️ Plethora — Hacking Journal & Second Brain OS
 
 <p align="center">
-  <img src="cybervault-ui/public/logo.png" width="120" alt="Plethora Logo" />
+  <img src="public/logo.png" width="120" alt="Plethora Logo" />
 </p>
 
 <p align="center">
@@ -71,115 +71,27 @@
 
 ## 🚀 Getting Started
 
-### Option 1: Use the Web App (No Installation Needed)
+### Local Development / Self-Hosting
 
-You can use Plethora directly in your browser without installing anything:
-
-1. Open **[Plethora Live](https://plethora-htb.vercel.app/)**.
-2. Click **Connect Platforms** on the dashboard.
-3. Select **Hack The Box** (enter Username & App Token) or **TryHackMe** (enter THM Username).
-4. Review the **Sync Preview** and click **Proceed & Import**!
-
----
-
-### Option 2: Self-Hosting / Local Development
-
-If you want to run Plethora locally or contribute to development:
-
-#### Prerequisites
-- Node.js (v18 or higher)
-- npm or pnpm
-
-#### Installation Steps
-
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/krishjain-2301/Kri27.git
-   cd Kri27/cybervault-ui
-   ```
-
-2. **Install Dependencies**:
+1. **Install Dependencies**:
    ```bash
    npm install
    ```
 
-3. **Run the Development Server**:
+2. **Run Development Server**:
    ```bash
    npm run dev
    ```
 
-4. **Open in Browser**:
-   Navigate to `http://localhost:3001` (or `http://localhost:3000`).
+3. **Run Unit Tests**:
+   ```bash
+   npx tsx --test tests/htb-provider.test.ts tests/thm-provider.test.ts
+   ```
 
----
-
-## 🧪 Running Tests
-
-Plethora includes a suite of regression tests for HTB and THM data mapping pipelines:
-
-```bash
-# Run provider unit tests
-npx tsx --test tests/htb-provider.test.ts tests/thm-provider.test.ts
-```
-
-To build for production and type-check:
-
-```bash
-npm run build
-```
-
----
-
-## 📂 Project Structure
-
-```
-cybervault-ui/
-├── src/
-│   ├── app/
-│   │   ├── api/
-│   │   │   ├── htb/[...path]/    # Proxy to Hack The Box API
-│   │   │   └── thm/[...path]/    # Proxy to TryHackMe API
-│   │   ├── challenges/           # Engagements grid (HTB Green & THM Red)
-│   │   ├── journal/[id]/         # BlockNote journal editor
-│   │   ├── journals/             # Journal Hub listing & preview
-│   │   ├── learning/             # Academy & THM Learning paths
-│   │   ├── settings/             # Connection manager & sync options
-│   │   └── timeline/             # Activity feed & heatmap
-│   ├── components/
-│   │   ├── ConnectionModal.tsx   # Dual provider connection modal
-│   │   ├── NavHeader.tsx         # Top bar with active platform badges
-│   │   └── SyncManagerClient.tsx # Multi-provider sync engine
-│   └── lib/
-│       ├── db/
-│       │   ├── dexie.ts          # IndexedDB database schema
-│       │   └── queries.ts        # Database queries & deduplication
-│       └── providers/
-│           ├── base/             # Provider interface contract
-│           ├── htb/              # Hack The Box provider pipeline
-│           └── thm/              # TryHackMe provider pipeline
-└── tests/
-    ├── fixtures/                 # Test JSON fixtures
-    ├── htb-provider.test.ts
-    └── thm-provider.test.ts
-```
-
----
-
-## 🤝 Contributing
-
-Contributions, feature suggestions, and pull requests are welcome! Feel free to open an issue on GitHub.
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
----
-
-## 📜 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
+4. **Build Production App**:
+   ```bash
+   npm run build
+   ```
 
 ---
 
