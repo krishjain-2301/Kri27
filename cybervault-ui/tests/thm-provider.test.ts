@@ -15,10 +15,10 @@ describe('TryHackMe Provider Data Pipeline Regression Tests', () => {
   it('should map THM user profile correctly from fixture', () => {
     const rawJson = loadFixture('thm-profile.json');
     const validatedData = THMProfileSchema.parse(rawJson);
-    assert.strictEqual(validatedData.username, 'krishjain213');
+    assert.strictEqual(validatedData.username, 'demo_user');
     
     const userProfile = THMMapper.toUserProfile(validatedData);
-    assert.strictEqual(userProfile.username, 'krishjain213');
+    assert.strictEqual(userProfile.username, 'demo_user');
     assert.strictEqual(userProfile.rank, 'Rank #4215');
     assert.strictEqual(userProfile.points, 1250);
   });

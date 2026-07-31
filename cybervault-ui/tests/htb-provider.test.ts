@@ -24,7 +24,7 @@ describe('HTB Provider Data Pipeline Regression Tests', () => {
     const cyberVaultItem = HTBMapper.toUserProfile(validatedData);
     
     // 4. Snapshot / Verify
-    assert.strictEqual(cyberVaultItem.username, 'krishjain213');
+    assert.strictEqual(cyberVaultItem.username, 'demo_user');
     assert.strictEqual(cyberVaultItem.rank, 'Noob');
     assert.strictEqual(cyberVaultItem.points, 0);
   });
