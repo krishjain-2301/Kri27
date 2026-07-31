@@ -5,6 +5,7 @@ import { Settings } from "lucide-react";
 import SidebarNav from "@/components/SidebarNav";
 import { CommandPalette } from "@/components/CommandPalette";
 import NavHeader from "@/components/NavHeader";
+import { Analytics } from "@vercel/analytics/next";
 
 
 const inter = Inter({ subsets: ["latin"] });
@@ -74,6 +75,7 @@ export default function RootLayout({
           </div>
         </div>
         <CommandPalette />
+        <Analytics />
       </body>
     </html>
   );
