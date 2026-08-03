@@ -11,10 +11,10 @@ import { Analytics } from "@vercel/analytics/next";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Plethora — HTB Journal",
+  title: "Plethora",
   description: "The cybersecurity hacking journal for Hack The Box players. Track machines, challenges, and write up your notes.",
   openGraph: {
-    title: "Plethora — HTB Journal",
+    title: "Plethora",
     description: "Track your Hack The Box progress and write up your hacking notes.",
     type: "website",
   },
@@ -37,7 +37,7 @@ export default function RootLayout({
       </head>
       <body className={`${inter.className} bg-[#050507] text-white overflow-hidden`}>
         <div className="flex h-screen w-full">
-          
+
           {/* SIDEBAR */}
           <aside className="w-[280px] flex-shrink-0 border-r border-[#1a1a20] flex flex-col h-full bg-[#050507]">
             {/* Logo area */}
@@ -63,7 +63,7 @@ export default function RootLayout({
 
           {/* MAIN CONTENT AREA */}
           <div className="flex-1 flex flex-col h-full min-w-0">
-            
+
             {/* TOP NAVBAR — client component that reads from IndexedDB */}
             <NavHeader />
 
