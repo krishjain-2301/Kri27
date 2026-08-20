@@ -158,9 +158,20 @@ export default function DashboardPage() {
               </div>
             </div>
           ) : (
-            <div className="flex items-center gap-2 group mb-2">
+            <div className="flex items-center gap-2 mb-2">
               <h1 className="text-3xl font-bold">
-                Welcome back{username ? `, ${username}` : ''}.
+                Welcome back,{' '}
+                <button
+                  onClick={() => {
+                    setEditUsername(username || '');
+                    setIsEditingUsername(true);
+                  }}
+                  className="hover:text-green-400 transition-colors cursor-pointer inline-flex items-center gap-1.5 underline decoration-dashed decoration-gray-600 underline-offset-4 hover:decoration-green-400"
+                  title="Click to edit your display name"
+                >
+                  {username || 'Hacker'}
+                </button>
+                .
               </h1>
               <button
                 onClick={() => {
@@ -168,10 +179,11 @@ export default function DashboardPage() {
                   setIsEditingUsername(true);
                 }}
                 title="Edit username"
-                className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white cursor-pointer"
+                className="p-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 hover:border-green-500/30 transition-all cursor-pointer flex items-center gap-1 text-xs"
                 aria-label="Edit username"
               >
-                <Pencil className="w-4 h-4" />
+                <Pencil className="w-3.5 h-3.5" />
+                <span className="text-xs text-gray-400 hover:text-white">Edit</span>
               </button>
             </div>
           )}

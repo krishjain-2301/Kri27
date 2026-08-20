@@ -54,16 +54,24 @@ export default function NavHeader() {
         <div className="flex items-center gap-4 text-sm bg-[#0c0c0e] border border-[#1a1a20] px-4 py-2 rounded-xl">
           <div className="flex items-center gap-3">
             {htbConnected && (
-              <div className="flex items-center gap-1.5 text-white font-bold text-xs bg-green-500/10 border border-green-500/20 px-2.5 py-1 rounded-lg">
+              <a
+                href="/settings"
+                title="Hack The Box Account (Click to manage)"
+                className="flex items-center gap-1.5 text-white font-bold text-xs bg-green-500/10 border border-green-500/20 hover:bg-green-500/20 px-2.5 py-1 rounded-lg transition"
+              >
                 <Target className="w-3.5 h-3.5 text-green-400" />
                 <span>{htbUsername}</span>
-              </div>
+              </a>
             )}
             {thmConnected && (
-              <div className="flex items-center gap-1.5 text-white font-bold text-xs bg-red-500/10 border border-red-500/20 px-2.5 py-1 rounded-lg">
+              <a
+                href="/settings"
+                title="TryHackMe Account (Click to manage)"
+                className="flex items-center gap-1.5 text-white font-bold text-xs bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 px-2.5 py-1 rounded-lg transition"
+              >
                 <Layers className="w-3.5 h-3.5 text-red-400" />
                 <span>{thmUsername}</span>
-              </div>
+              </a>
             )}
           </div>
           <div className="w-px h-4 bg-[#1a1a20]" />
