@@ -1,16 +1,58 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   ArrowRight, Target, Flame, Activity, Shield, 
   Terminal, Play, Plus, BookOpen, Clock, Calendar,
-  CheckCircle, GitCommit, FileText, Database, Search
+  CheckCircle, GitCommit, FileText, Database, Search,
+  Pencil, Check, X, RotateCcw
 } from 'lucide-react';
 import ConnectionModal from '@/components/ConnectionModal';
+import { updateDisplayName } from '@/lib/db/queries';
 
-export default function DashboardClient({ stats, recommendation, recentActivity, activityStats, isConnected, username }: any) {
+export default function DashboardClient({ stats, recommendation, recentActivity, activityStats, isConnected, username: initialUsername, defaultUsername }: any) {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [currentUsername, setCurrentUsername] = useState(initialUsername || '');
+  const [isEditingUsername, setIsEditingUsername] = useState(false);
+  const [editUsername, setEditUsername] = useState(initialUsername || '');
+  const [isSaving, setIsSaving] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isEditingUsername && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [isEditingUsername]);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const trimmed = editUsername.trim();
+      await updateDisplayName(trimmed || null);
+      setCurrentUsername(trimmed || defaultUsername || '');
+      setIsEditingUsername(false);
+    } catch (e) {
+      console.error('Failed to update username:', e);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleReset = async () => {
+    setIsSaving(true);
+    try {
+      await updateDisplayName(null);
+      setCurrentUsername(defaultUsername || '');
+      setEditUsername(defaultUsername || '');
+      setIsEditingUsername(false);
+    } catch (e) {
+      console.error('Failed to reset username:', e);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <motion.div 
@@ -23,7 +65,66 @@ export default function DashboardClient({ stats, recommendation, recentActivity,
       {/* HEADER */}
       <div className="flex items-end justify-between mb-8 mt-4">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Welcome back{username ? `, ${username}` : ''}.</h1>
+          {isEditingUsername ? (
+            <div className="mb-2 flex flex-wrap items-center gap-2">
+              <span className="text-3xl font-bold text-gray-300">Welcome back,</span>
+              <div className="relative flex items-center gap-2">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={editUsername}
+                  onChange={(e) => setEditUsername(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleSave();
+                    if (e.key === 'Escape') setIsEditingUsername(false);
+                  }}
+                  placeholder={defaultUsername || 'your username'}
+                  className="bg-[#0c0c0e] border border-green-500/50 rounded-xl px-3 py-1 text-2xl font-bold text-white focus:outline-none focus:ring-2 focus:ring-green-500/30 transition shadow-inner"
+                />
+                <button
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  title="Save username (Enter)"
+                  className="p-2 bg-green-500 hover:bg-green-400 text-black font-bold rounded-xl transition active:scale-95 disabled:opacity-50"
+                >
+                  <Check className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setIsEditingUsername(false)}
+                  title="Cancel (Esc)"
+                  className="p-2 bg-[#1a1a20] hover:bg-[#252530] text-gray-400 hover:text-white rounded-xl transition active:scale-95"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+                {defaultUsername && currentUsername !== defaultUsername && (
+                  <button
+                    onClick={handleReset}
+                    title={`Reset to default account name (${defaultUsername})`}
+                    className="px-2.5 py-1.5 bg-white/5 hover:bg-white/10 text-xs font-semibold text-gray-400 hover:text-white rounded-lg transition flex items-center gap-1.5 border border-white/5"
+                  >
+                    <RotateCcw className="w-3 h-3" /> Reset ({defaultUsername})
+                  </button>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 group mb-2">
+              <h1 className="text-3xl font-bold">
+                Welcome back{currentUsername ? `, ${currentUsername}` : ''}.
+              </h1>
+              <button
+                onClick={() => {
+                  setEditUsername(currentUsername || '');
+                  setIsEditingUsername(true);
+                }}
+                title="Edit username"
+                className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white cursor-pointer"
+                aria-label="Edit username"
+              >
+                <Pencil className="w-4 h-4" />
+              </button>
+            </div>
+          )}
           <p className="text-gray-500 text-sm">Here is what you've accomplished and where you left off.</p>
         </div>
         <div className="flex items-center gap-6">

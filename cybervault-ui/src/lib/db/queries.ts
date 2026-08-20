@@ -15,6 +15,28 @@ export async function getSettings(): Promise<Settings | null> {
   return all[0] ?? null;
 }
 
+export async function updateDisplayName(displayName: string | null) {
+  const db = getDb();
+  const existing = await db.settings.toArray();
+  const now = new Date();
+  const trimmed = displayName?.trim() || null;
+  if (existing.length === 0) {
+    await db.settings.add({
+      id: 'default',
+      displayName: trimmed,
+      autoSync: true,
+      syncInterval: '15 min',
+      createdAt: now,
+      updatedAt: now,
+    });
+  } else {
+    await db.settings.update(existing[0].id, {
+      displayName: trimmed,
+      updatedAt: now,
+    });
+  }
+}
+
 export async function saveConnectionSettings(username: string, token: string) {
   const db = getDb();
   const existing = await db.settings.toArray();

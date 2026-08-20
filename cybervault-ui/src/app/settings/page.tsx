@@ -3,11 +3,12 @@
 import React, { useEffect, useState } from 'react';
 import {
   Settings as SettingsIcon, ShieldCheck, RefreshCw, Key, User,
-  Unplug, CheckCircle, AlertCircle, Activity, Layers
+  Unplug, CheckCircle, AlertCircle, Activity, Layers, Edit3
 } from 'lucide-react';
 import {
   getSettings, saveCredentials, disconnectCredentials,
   saveTHMCredentials, disconnectTHMCredentials,
+  updateDisplayName,
   updateSyncPreferences, getSyncHistory
 } from '@/lib/db/queries';
 import { HTBBrowserClient } from '@/lib/providers/htb/browser-client';
@@ -15,6 +16,10 @@ import { THMBrowserClient } from '@/lib/providers/thm/browser-client';
 import { format } from 'date-fns';
 
 export default function SettingsPage() {
+  const [displayName, setDisplayName] = useState('');
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [profileSaved, setProfileSaved] = useState(false);
+
   const [username, setUsername] = useState('');
   const [appToken, setAppToken] = useState('');
   const [isConnected, setIsConnected] = useState(false);
@@ -33,6 +38,10 @@ export default function SettingsPage() {
   useEffect(() => {
     async function load() {
       const settings = await getSettings();
+      if (settings?.displayName) {
+        setDisplayName(settings.displayName);
+      }
+
       if (settings?.htbAppToken) {
         setIsConnected(true);
         setUsername(settings.htbUsername || '');
@@ -76,6 +85,14 @@ export default function SettingsPage() {
     }
     load();
   }, []);
+
+  const handleSaveProfile = async () => {
+    setSavingProfile(true);
+    await updateDisplayName(displayName.trim() || null);
+    setSavingProfile(false);
+    setProfileSaved(true);
+    setTimeout(() => setProfileSaved(false), 3000);
+  };
 
   const handleSaveHTB = async () => {
     setSavingHTB(true);
@@ -126,6 +143,94 @@ export default function SettingsPage() {
       </div>
 
       <div className="space-y-6">
+
+        {/* Profile & Display Name */}
+        <div className="stakent-glass p-8 relative overflow-hidden">
+          <div className="flex justify-between items-start mb-6">
+            <div>
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <User className="w-5 h-5 text-purple-400" /> Profile & Display Name
+              </h2>
+              <p className="text-sm text-gray-500 mt-1">
+                Customize the username shown in your greeting and dashboard.
+              </p>
+            </div>
+            {profileSaved && (
+              <span className="text-green-400 font-bold text-xs bg-green-500/10 border border-green-500/20 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+                <CheckCircle className="w-4 h-4" /> Saved
+              </span>
+            )}
+          </div>
+
+          <div className="space-y-4 max-w-lg">
+            <div>
+              <label className="text-xs uppercase tracking-wider font-bold text-gray-500 mb-2 block">
+                Display Username
+              </label>
+              <div className="relative">
+                <User className="w-5 h-5 text-gray-400 absolute left-3 top-3" />
+                <input
+                  type="text"
+                  value={displayName}
+                  onChange={e => setDisplayName(e.target.value)}
+                  className="w-full bg-[#0c0c0e] border border-[#1a1a20] rounded-xl py-2.5 pl-11 pr-4 text-white focus:outline-none focus:border-purple-500/50 transition text-sm"
+                  placeholder={username || thmUsername || "Enter your display username"}
+                />
+              </div>
+              <p className="text-xs text-gray-600 mt-2">
+                {username || thmUsername
+                  ? `Defaults to your connected account name (${username || thmUsername}) if left empty.`
+                  : "Sets your greeting name across CyberVault."}
+              </p>
+            </div>
+
+            <div className="pt-2 flex flex-wrap items-center gap-3">
+              <button
+                onClick={handleSaveProfile}
+                disabled={savingProfile}
+                className="stakent-btn-primary flex items-center gap-2 disabled:opacity-50 !bg-purple-600 hover:!bg-purple-500"
+              >
+                <RefreshCw className={`w-4 h-4 ${savingProfile ? 'animate-spin' : ''}`} />
+                {savingProfile ? 'Saving...' : 'Save Display Name'}
+              </button>
+
+              {username && displayName !== username && (
+                <button
+                  onClick={() => setDisplayName(username)}
+                  type="button"
+                  className="px-3 py-2 bg-[#0c0c0e] border border-[#1a1a20] hover:bg-white/5 text-xs font-semibold text-gray-300 rounded-xl transition"
+                >
+                  Use HTB ({username})
+                </button>
+              )}
+
+              {thmUsername && displayName !== thmUsername && (
+                <button
+                  onClick={() => setDisplayName(thmUsername)}
+                  type="button"
+                  className="px-3 py-2 bg-[#0c0c0e] border border-[#1a1a20] hover:bg-white/5 text-xs font-semibold text-gray-300 rounded-xl transition"
+                >
+                  Use THM ({thmUsername})
+                </button>
+              )}
+
+              {displayName && (
+                <button
+                  onClick={async () => {
+                    setDisplayName('');
+                    await updateDisplayName(null);
+                    setProfileSaved(true);
+                    setTimeout(() => setProfileSaved(false), 3000);
+                  }}
+                  type="button"
+                  className="px-3 py-2 bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 text-xs font-semibold text-red-400 rounded-xl transition"
+                >
+                  Reset to Default
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
 
         {/* HTB Connection */}
         <div className="stakent-glass p-8 relative overflow-hidden">

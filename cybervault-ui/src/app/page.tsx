@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import {
   ArrowRight, Target, Activity, FileText, Plus,
-  Clock, Calendar, CheckCircle, BookOpen, Search
+  Clock, Calendar, CheckCircle, BookOpen, Search,
+  Pencil, Check, X, RotateCcw
 } from 'lucide-react';
 import ConnectionModal from '@/components/ConnectionModal';
 import {
@@ -13,6 +14,7 @@ import {
   getRecentActivity,
   getActivityStats,
   getSettings,
+  updateDisplayName,
   createDailyNote,
 } from '@/lib/db/queries';
 
@@ -20,6 +22,12 @@ export default function DashboardPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [username, setUsername] = useState<string | null>(null);
+  const [defaultUsername, setDefaultUsername] = useState<string | null>(null);
+  const [isEditingUsername, setIsEditingUsername] = useState(false);
+  const [editUsername, setEditUsername] = useState('');
+  const [isSavingUsername, setIsSavingUsername] = useState(false);
+  const editInputRef = useRef<HTMLInputElement>(null);
+
   const [stats, setStats] = useState({ machines: 0, challenges: 0, sherlocks: 0, totalSessions: 0 });
   const [recommendation, setRecommendation] = useState<any>(null);
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
@@ -38,8 +46,13 @@ export default function DashboardPage() {
 
         const hasHTB = !!settings?.htbAppToken;
         const hasTHM = !!settings?.thmUsername;
+        const fallbackName = settings?.htbUsername || settings?.thmUsername || null;
+        const activeName = settings?.displayName?.trim() || fallbackName;
+
         setIsConnected(hasHTB || hasTHM);
-        setUsername(settings?.htbUsername || settings?.thmUsername || null);
+        setUsername(activeName);
+        setDefaultUsername(fallbackName);
+        setEditUsername(activeName || '');
         setStats(s);
         setRecommendation(rec);
         setRecentActivity(activity);
@@ -50,6 +63,42 @@ export default function DashboardPage() {
     }
     load();
   }, []);
+
+  useEffect(() => {
+    if (isEditingUsername && editInputRef.current) {
+      editInputRef.current.focus();
+      editInputRef.current.select();
+    }
+  }, [isEditingUsername]);
+
+  const handleSaveUsername = async () => {
+    setIsSavingUsername(true);
+    try {
+      const trimmed = editUsername.trim();
+      await updateDisplayName(trimmed || null);
+      const newName = trimmed || defaultUsername || null;
+      setUsername(newName);
+      setIsEditingUsername(false);
+    } catch (e) {
+      console.error('Failed to update username:', e);
+    } finally {
+      setIsSavingUsername(false);
+    }
+  };
+
+  const handleResetUsername = async () => {
+    setIsSavingUsername(true);
+    try {
+      await updateDisplayName(null);
+      setUsername(defaultUsername);
+      setEditUsername(defaultUsername || '');
+      setIsEditingUsername(false);
+    } catch (e) {
+      console.error('Failed to reset username:', e);
+    } finally {
+      setIsSavingUsername(false);
+    }
+  };
 
   const handleDailyNote = async () => {
     const id = await createDailyNote();
@@ -66,7 +115,66 @@ export default function DashboardPage() {
       {/* HEADER */}
       <div className="flex items-end justify-between mb-8 mt-4">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Welcome back{username ? `, ${username}` : ''}.</h1>
+          {isEditingUsername ? (
+            <div className="mb-2 flex flex-wrap items-center gap-2">
+              <span className="text-3xl font-bold text-gray-300">Welcome back,</span>
+              <div className="relative flex items-center gap-2">
+                <input
+                  ref={editInputRef}
+                  type="text"
+                  value={editUsername}
+                  onChange={(e) => setEditUsername(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleSaveUsername();
+                    if (e.key === 'Escape') setIsEditingUsername(false);
+                  }}
+                  placeholder={defaultUsername || 'your username'}
+                  className="bg-[#0c0c0e] border border-green-500/50 rounded-xl px-3 py-1 text-2xl font-bold text-white focus:outline-none focus:ring-2 focus:ring-green-500/30 transition shadow-inner"
+                />
+                <button
+                  onClick={handleSaveUsername}
+                  disabled={isSavingUsername}
+                  title="Save username (Enter)"
+                  className="p-2 bg-green-500 hover:bg-green-400 text-black font-bold rounded-xl transition active:scale-95 disabled:opacity-50"
+                >
+                  <Check className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setIsEditingUsername(false)}
+                  title="Cancel (Esc)"
+                  className="p-2 bg-[#1a1a20] hover:bg-[#252530] text-gray-400 hover:text-white rounded-xl transition active:scale-95"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+                {defaultUsername && username !== defaultUsername && (
+                  <button
+                    onClick={handleResetUsername}
+                    title={`Reset to default account name (${defaultUsername})`}
+                    className="px-2.5 py-1.5 bg-white/5 hover:bg-white/10 text-xs font-semibold text-gray-400 hover:text-white rounded-lg transition flex items-center gap-1.5 border border-white/5"
+                  >
+                    <RotateCcw className="w-3 h-3" /> Reset ({defaultUsername})
+                  </button>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 group mb-2">
+              <h1 className="text-3xl font-bold">
+                Welcome back{username ? `, ${username}` : ''}.
+              </h1>
+              <button
+                onClick={() => {
+                  setEditUsername(username || '');
+                  setIsEditingUsername(true);
+                }}
+                title="Edit username"
+                className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white cursor-pointer"
+                aria-label="Edit username"
+              >
+                <Pencil className="w-4 h-4" />
+              </button>
+            </div>
+          )}
           <p className="text-gray-500 text-sm">Here is what you've accomplished and where you left off.</p>
         </div>
         <div className="flex items-center gap-6">

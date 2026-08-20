@@ -52,6 +52,7 @@ export interface Settings {
   htbAppToken?: string | null;
   htbUsername?: string | null;
   thmUsername?: string | null;
+  displayName?: string | null;
   autoSync?: boolean | null;
   syncInterval?: string | null;
   createdAt: Date;
